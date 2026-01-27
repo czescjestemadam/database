@@ -139,6 +139,11 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 
 		appendConditions(sql, parameters);
 
+		if (!orders.isEmpty()) {
+			sql.append(" ORDER BY ")
+					.append(buildOrders());
+		}
+
 		if (limit > 0) {
 			sql.append(" LIMIT ")
 					.append(limit);
@@ -155,6 +160,11 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 				.append(table);
 
 		appendConditions(sql, parameters);
+
+		if (!orders.isEmpty()) {
+			sql.append(" ORDER BY ")
+					.append(buildOrders());
+		}
 
 		if (limit > 0) {
 			sql.append(" LIMIT ")
