@@ -53,16 +53,19 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@Nullable
 	@Override
-	public T first(SelectQuery selectQuery) {
-		final List<T> models = select(selectQuery);
+	public T first(QueryBuilder queryBuilder) {
+		final List<T> models = select(
+				queryBuilder.limit(1)
+						.select()
+		);
 
 		return models.isEmpty() ? null : models.getFirst();
 	}
 
 	@NotNull
 	@Override
-	public T firstOrFail(SelectQuery selectQuery) {
-		final T model = first(selectQuery);
+	public T firstOrFail(QueryBuilder queryBuilder) {
+		final T model = first(queryBuilder);
 		if (model == null) {
 			throw new ModelNotFoundException(String.format(
 					"Model %s with given query not found",

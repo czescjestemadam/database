@@ -23,13 +23,13 @@ public interface Repository<T extends Model<T>> {
 	T findOrFail(int id);
 
 	@Nullable
-	T first(SelectQuery selectQuery);
+	T first(QueryBuilder queryBuilder);
 
 	/**
 	 * @throws ModelNotFoundException when no model with given query found
 	 */
 	@NotNull
-	T firstOrFail(SelectQuery selectQuery);
+	T firstOrFail(QueryBuilder queryBuilder);
 
 	boolean exists(int id);
 
