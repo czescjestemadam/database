@@ -2,7 +2,6 @@ package dev.czescjestemadam.database.repository;
 
 import dev.czescjestemadam.database.DatabaseConnectionManager;
 import dev.czescjestemadam.database.exceptions.DatabaseException;
-import dev.czescjestemadam.database.exceptions.ModelException;
 import dev.czescjestemadam.database.exceptions.ModelNotFoundException;
 import dev.czescjestemadam.database.exceptions.QueryException;
 import dev.czescjestemadam.database.model.Model;
@@ -12,21 +11,22 @@ import dev.czescjestemadam.database.query.impl.UpdateQuery;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Supplier;
 
 public abstract class AbstractRepository<T extends Model<T>> implements Repository<T> {
 	protected final DatabaseConnectionManager manager;
 	protected final Class<T> modelClass;
+	protected final Supplier<T> modelConstructor;
 
-	protected AbstractRepository(DatabaseConnectionManager manager, Class<T> modelClass) {
+	protected AbstractRepository(DatabaseConnectionManager manager, Class<T> modelClass, Supplier<T> modelConstructor) {
 		this.manager = manager;
 		this.modelClass = modelClass;
+		this.modelConstructor = modelConstructor;
 	}
 
 	@Nullable
@@ -182,20 +182,6 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	}
 
 
-	protected T createModelInstance() {
-		final Constructor<T> constructor = getModelConstructor();
-
-		try {
-			return constructor.newInstance();
-		} catch (final InstantiationException e) {
-			throw new ModelException("Cannot instantiate model " + modelClass, e);
-		} catch (final IllegalAccessException e) {
-			throw new ModelException("Cannot access constructor for " + modelClass, e);
-		} catch (final InvocationTargetException e) {
-			throw new ModelException("Error constructing model " + modelClass, e);
-		}
-	}
-
 	protected Map<String, Object> getResultSetValues(ResultSet resultSet) throws SQLException {
 		final Map<String, Object> values = new HashMap<>();
 
@@ -210,14 +196,6 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 		return values;
 	}
 
-	private Constructor<T> getModelConstructor() {
-		try {
-			return modelClass.getConstructor();
-		} catch (final NoSuchMethodException e) {
-			throw new ModelException("Default constructor not found", e);
-		}
-	}
-
 	private String getTableName() {
 		return Model.getTableName(modelClass);
 	}
@@ -229,7 +207,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 				.execute(connection);
 
 		if (resultSet.next()) {
-			final T model = createModelInstance();
+			final T model = modelConstructor.get();
 			model.initValues(getResultSetValues(resultSet));
 			return model;
 		} else {

@@ -6,6 +6,6 @@ import dev.czescjestemadam.database.tests.models.Example;
 
 public class ExampleRepository extends AbstractRepository<Example> {
 	public ExampleRepository(DatabaseConnectionManager manager) {
-		super(manager, Example.class);
+		super(manager, Example.class, Example::new);
 	}
 }
