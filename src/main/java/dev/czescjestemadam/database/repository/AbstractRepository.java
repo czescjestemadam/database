@@ -6,6 +6,7 @@ import dev.czescjestemadam.database.exceptions.QueryException;
 import dev.czescjestemadam.database.model.Model;
 import dev.czescjestemadam.database.query.builder.InsertQueryBuilder;
 import dev.czescjestemadam.database.query.builder.QueryBuilder;
+import dev.czescjestemadam.database.query.impl.SelectQuery;
 import dev.czescjestemadam.database.query.impl.UpdateQuery;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,6 +48,28 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 					id
 			));
 		}
+		return model;
+	}
+
+	@Nullable
+	@Override
+	public T first(SelectQuery selectQuery) {
+		final List<T> models = select(selectQuery);
+
+		return models.isEmpty() ? null : models.getFirst();
+	}
+
+	@NotNull
+	@Override
+	public T firstOrFail(SelectQuery selectQuery) {
+		final T model = first(selectQuery);
+		if (model == null) {
+			throw new ModelNotFoundException(String.format(
+					"Model %s with given query not found",
+					modelClass
+			));
+		}
+
 		return model;
 	}
 
@@ -170,6 +193,13 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	}
 
 	@Override
+	public List<T> select(SelectQuery selectQuery) {
+		return manager.connected(connection -> {
+			return select(connection, selectQuery);
+		});
+	}
+
+	@Override
 	public QueryBuilder query(String... columns) {
 		return new QueryBuilder(getTableName(), Set.of(columns));
 	}
@@ -199,17 +229,26 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	}
 
 	private T find(Connection connection, int id) throws SQLException {
-		final ResultSet resultSet = query()
-				.whereEquals("id", id)
-				.select()
-				.execute(connection);
+		final List<T> models = select(
+				connection,
+				query().whereEquals("id", id)
+						.select()
+		);
 
-		if (resultSet.next()) {
+		return models.isEmpty() ? null : models.getFirst();
+	}
+
+	private List<T> select(Connection connection, SelectQuery selectQuery) throws SQLException {
+		final ResultSet resultSet = selectQuery.execute(connection);
+
+		final List<T> models = new ArrayList<>();
+
+		while (resultSet.next()) {
 			final T model = modelConstructor.get();
 			model.initValues(getResultSetValues(resultSet));
-			return model;
-		} else {
-			return null;
+			models.add(model);
 		}
+
+		return models;
 	}
 }
