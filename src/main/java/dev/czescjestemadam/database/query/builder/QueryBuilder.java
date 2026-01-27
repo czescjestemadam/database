@@ -25,6 +25,8 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 	private final List<QueryCondition> conditions = new ArrayList<>();
 	private final List<QueryOrder> orders = new ArrayList<>();
 
+	private int limit = -1;
+
 	public QueryBuilder(String table, Set<String> columns) {
 		this.table = table;
 		this.columns = columns;
@@ -39,6 +41,20 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 	@Override
 	public QueryBuilder orderBy(String column, OrderType type) {
 		orders.add(new QueryOrder(column, type));
+		return this;
+	}
+
+	public QueryBuilder limit(int limit) {
+		if (limit < 1) {
+			throw new IllegalArgumentException("Limit cannot be less than 1");
+		}
+
+		this.limit = limit;
+		return this;
+	}
+
+	public QueryBuilder withoutLimit() {
+		this.limit = -1;
 		return this;
 	}
 
@@ -57,6 +73,11 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		if (!orders.isEmpty()) {
 			sql.append(" ORDER BY ")
 					.append(buildOrders());
+		}
+
+		if (limit > 0) {
+			sql.append(" LIMIT ")
+					.append(limit);
 		}
 
 		sql.append(';');
@@ -118,6 +139,11 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 
 		appendConditions(sql, parameters);
 
+		if (limit > 0) {
+			sql.append(" LIMIT ")
+					.append(limit);
+		}
+
 		return new UpdateQuery(sql.toString(), parameters, false);
 	}
 
@@ -129,6 +155,11 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 				.append(table);
 
 		appendConditions(sql, parameters);
+
+		if (limit > 0) {
+			sql.append(" LIMIT ")
+					.append(limit);
+		}
 
 		return new UpdateQuery(sql.toString(), parameters, false);
 	}
