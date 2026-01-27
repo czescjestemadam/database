@@ -3,6 +3,7 @@ package dev.czescjestemadam.database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.czescjestemadam.database.dialect.SqlDialect;
+import dev.czescjestemadam.database.exceptions.DatabaseException;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sql.DataSource;
@@ -18,6 +19,22 @@ public class DatabaseConnectionManager {
 		this.config = config;
 		this.sqlDialect = SqlDialect.detect(config.getJdbcUrl());
 		this.dataSource = new HikariDataSource(config);
+	}
+
+	public <R> R connected(ConnectedFunction<R> func) {
+		try (final Connection connection = getConnection()) {
+			return func.apply(connection);
+		} catch (final SQLException e) {
+			throw new DatabaseException("Error getting connection", e);
+		}
+	}
+
+	public void connected(ConnectedConsumer func) {
+		try (final Connection connection = getConnection()) {
+			func.accept(connection);
+		} catch (final SQLException e) {
+			throw new DatabaseException("Error getting connection", e);
+		}
 	}
 
 	public Connection getConnection() throws SQLException {
@@ -44,5 +61,15 @@ public class DatabaseConnectionManager {
 				", sqlDialect=" + sqlDialect +
 				", dataSource=" + dataSource +
 				'}';
+	}
+
+	@FunctionalInterface
+	public interface ConnectedFunction<R> {
+		R apply(Connection connection) throws SQLException;
+	}
+
+	@FunctionalInterface
+	public interface ConnectedConsumer {
+		void accept(Connection connection) throws SQLException;
 	}
 }

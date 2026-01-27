@@ -1,7 +1,6 @@
 package dev.czescjestemadam.database.repository;
 
 import dev.czescjestemadam.database.DatabaseConnectionManager;
-import dev.czescjestemadam.database.exceptions.DatabaseException;
 import dev.czescjestemadam.database.exceptions.ModelNotFoundException;
 import dev.czescjestemadam.database.exceptions.QueryException;
 import dev.czescjestemadam.database.model.Model;
@@ -32,7 +31,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	@Nullable
 	@Override
 	public T find(int id) {
-		return connected(connection -> {
+		return manager.connected(connection -> {
 			return find(connection, id);
 		});
 	}
@@ -53,7 +52,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@Override
 	public boolean exists(int id) {
-		return connected(connection -> {
+		return manager.connected(connection -> {
 			final ResultSet resultSet = query("id")
 					.whereEquals("id", id)
 					.select()
@@ -65,7 +64,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@Override
 	public void update(T model) {
-		connected(connection -> {
+		manager.connected(connection -> {
 			final Map<String, Object> dirtyValues = model.getDirtyValues();
 
 			query()
@@ -77,7 +76,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@Override
 	public boolean delete(int id) {
-		return connected(connection -> {
+		return manager.connected(connection -> {
 			final Integer updateCount = query()
 					.whereEquals("id", id)
 					.delete()
@@ -97,8 +96,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@Override
 	public T insert(Map<String, Object> values) {
-
-		return connected(connection -> {
+		return manager.connected(connection -> {
 			final UpdateQuery query = insertQuery()
 					.columns(values.keySet())
 					.values(new ArrayList<>(values.values()))
@@ -138,7 +136,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 			throw new IllegalArgumentException("Cannot insert empty models collection");
 		}
 
-		connected(connection -> {
+		manager.connected(connection -> {
 			final InsertQueryBuilder queryBuilder = insertQuery();
 
 			boolean columnsSet = false;
@@ -158,7 +156,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@Override
 	public long count() {
-		return connected(connection -> {
+		return manager.connected(connection -> {
 			final ResultSet resultSet = query("COUNT(*)")
 					.select()
 					.execute(connection);
@@ -213,31 +211,5 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 		} else {
 			return null;
 		}
-	}
-
-	private <R> R connected(ConnectedFunction<R> func) {
-		try (final Connection connection = manager.getConnection()) {
-			return func.apply(connection);
-		} catch (final SQLException e) {
-			throw new DatabaseException("Error getting connection", e);
-		}
-	}
-
-	private void connected(ConnectedConsumer func) {
-		try (final Connection connection = manager.getConnection()) {
-			func.accept(connection);
-		} catch (final SQLException e) {
-			throw new DatabaseException("Error getting connection", e);
-		}
-	}
-
-	@FunctionalInterface
-	private interface ConnectedFunction<R> {
-		R apply(Connection connection) throws SQLException;
-	}
-
-	@FunctionalInterface
-	private interface ConnectedConsumer {
-		void accept(Connection connection) throws SQLException;
 	}
 }
