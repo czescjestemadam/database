@@ -25,10 +25,26 @@ tasks.test {
     useJUnitPlatform()
 }
 
+java {
+    withSourcesJar()
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
+        }
+    }
+
+    repositories {
+        maven {
+            name = "adam"
+            url = uri("https://mvn.czescjestemadam.dev/public")
+
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
         }
     }
 }
