@@ -30,11 +30,10 @@ public class DatabaseConnectionManager {
 	}
 
 	public void connected(ConnectedConsumer func) {
-		try (final Connection connection = getConnection()) {
+		connected(connection -> {
 			func.accept(connection);
-		} catch (final SQLException e) {
-			throw new DatabaseException("Error getting connection", e);
-		}
+			return null;
+		});
 	}
 
 	public Connection getConnection() throws SQLException {
