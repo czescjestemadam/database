@@ -1,6 +1,6 @@
 package dev.czescjestemadam.database.model;
 
-import dev.czescjestemadam.database.exceptions.ModelException;
+import dev.czescjestemadam.database.exceptions.model.ModelException;
 import dev.czescjestemadam.database.model.annotations.Column;
 import dev.czescjestemadam.database.model.annotations.Table;
 import dev.czescjestemadam.database.utils.Str;

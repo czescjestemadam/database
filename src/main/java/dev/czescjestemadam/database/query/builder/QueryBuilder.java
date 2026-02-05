@@ -1,7 +1,7 @@
 package dev.czescjestemadam.database.query.builder;
 
 
-import dev.czescjestemadam.database.exceptions.QueryException;
+import dev.czescjestemadam.database.exceptions.query.QueryException;
 import dev.czescjestemadam.database.query.OrderType;
 import dev.czescjestemadam.database.query.builder.condition.QueryCondition;
 import dev.czescjestemadam.database.query.builder.condition.QueryConditionBuilder;

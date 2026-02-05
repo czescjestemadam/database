@@ -3,7 +3,7 @@ package dev.czescjestemadam.database.tests;
 import dev.czescjestemadam.database.DatabaseConnectionManager;
 import dev.czescjestemadam.database.HikariConfigBuilder;
 import dev.czescjestemadam.database.exceptions.DatabaseException;
-import dev.czescjestemadam.database.exceptions.ModelNotFoundException;
+import dev.czescjestemadam.database.exceptions.model.ModelNotFoundException;
 import dev.czescjestemadam.database.exceptions.constraint.UniqueConstraintException;
 import dev.czescjestemadam.database.migration.MigrationAction;
 import dev.czescjestemadam.database.migration.MigrationManager;

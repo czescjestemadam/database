@@ -1,6 +1,6 @@
 package dev.czescjestemadam.database.query.impl;
 
-import dev.czescjestemadam.database.exceptions.QueryException;
+import dev.czescjestemadam.database.exceptions.query.QueryException;
 import dev.czescjestemadam.database.query.AbstractPreparedQuery;
 
 import java.sql.Connection;

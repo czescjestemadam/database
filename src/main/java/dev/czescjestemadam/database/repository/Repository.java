@@ -1,6 +1,6 @@
 package dev.czescjestemadam.database.repository;
 
-import dev.czescjestemadam.database.exceptions.ModelNotFoundException;
+import dev.czescjestemadam.database.exceptions.model.ModelNotFoundException;
 import dev.czescjestemadam.database.model.Model;
 import dev.czescjestemadam.database.query.builder.InsertQueryBuilder;
 import dev.czescjestemadam.database.query.builder.QueryBuilder;
