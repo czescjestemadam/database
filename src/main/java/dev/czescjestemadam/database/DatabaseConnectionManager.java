@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.czescjestemadam.database.dialect.SqlDialect;
 import dev.czescjestemadam.database.exceptions.DatabaseException;
+import dev.czescjestemadam.database.utils.ExceptionMapper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sql.DataSource;
@@ -25,7 +26,8 @@ public class DatabaseConnectionManager {
 		try (final Connection connection = getConnection()) {
 			return func.apply(connection);
 		} catch (final SQLException e) {
-			throw new DatabaseException("Error getting connection", e);
+			throw ExceptionMapper.create(e)
+					.orElse(new DatabaseException("Error getting connection", e));
 		}
 	}
 

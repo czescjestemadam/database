@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     api("com.zaxxer:HikariCP:4.0.3")
+    api("org.xerial:sqlite-jdbc:3.51.1.0")
     api("org.jetbrains:annotations:26.0.2")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))

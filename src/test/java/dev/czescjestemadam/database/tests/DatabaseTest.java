@@ -1,10 +1,10 @@
 package dev.czescjestemadam.database.tests;
 
-import com.zaxxer.hikari.HikariConfig;
 import dev.czescjestemadam.database.DatabaseConnectionManager;
 import dev.czescjestemadam.database.HikariConfigBuilder;
 import dev.czescjestemadam.database.exceptions.DatabaseException;
 import dev.czescjestemadam.database.exceptions.ModelNotFoundException;
+import dev.czescjestemadam.database.exceptions.constraint.UniqueConstraintException;
 import dev.czescjestemadam.database.migration.MigrationAction;
 import dev.czescjestemadam.database.migration.MigrationManager;
 import dev.czescjestemadam.database.repository.Repository;
@@ -100,6 +100,23 @@ class DatabaseTest {
 		repository.update(updated);
 
 		assertNull(repository.findOrFail(updated.id).strNullable);
+	}
+
+	@Test
+	@Order(125)
+	void defaultRepoDoubleInsert() {
+		final Example inserted = new Example(
+				null,
+				"default_repo_str",
+				"default_repo_nullable",
+				"default_repo_dflt",
+				"default_repo_unique"
+		);
+
+		assertThrowsExactly(
+				UniqueConstraintException.class,
+				() -> repository.insert(inserted)
+		);
 	}
 
 	@Test
