@@ -19,6 +19,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.slf4j:slf4j-simple:2.0.17")
     testRuntimeOnly("org.xerial:sqlite-jdbc:3.51.1.0")
 }
 
