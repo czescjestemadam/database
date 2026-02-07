@@ -25,10 +25,6 @@ public class MigrationManager {
 	}
 
 	public void runMigrations(boolean fresh) {
-		for (final DatabaseMigration migration : migrations) {
-			System.out.println("migration = " + migration);
-		}
-
 		if (fresh) {
 			for (final DatabaseMigration migration : migrations.reversed()) {
 				runMigration(migration, MigrationAction.DOWN);
