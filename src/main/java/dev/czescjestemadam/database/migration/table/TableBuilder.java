@@ -11,6 +11,7 @@ public class TableBuilder {
 	private final String name;
 	private final TableQueryAction action;
 	private final List<ColumnBuilder> columnBuilders = new ArrayList<>();
+	private boolean ifNotExists;
 
 	public TableBuilder(String name, TableQueryAction action) {
 		this.name = name;
@@ -165,6 +166,15 @@ public class TableBuilder {
 		return builder;
 	}
 
+	public TableBuilder ifNotExists() {
+		return ifNotExists(true);
+	}
+
+	public TableBuilder ifNotExists(boolean ifNotExists) {
+		this.ifNotExists = ifNotExists;
+		return this;
+	}
+
 
 	public Table build() {
 		return new Table(
@@ -172,7 +182,8 @@ public class TableBuilder {
 				action,
 				columnBuilders.stream()
 						.map(ColumnBuilder::build)
-						.toList()
+						.toList(),
+				ifNotExists
 		);
 	}
 }

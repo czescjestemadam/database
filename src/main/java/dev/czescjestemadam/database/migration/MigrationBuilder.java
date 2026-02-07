@@ -26,11 +26,19 @@ public class MigrationBuilder {
 	}
 
 	public void createTable(Class<? extends Model<?>> modelClass, Consumer<TableBuilder> builder) {
-		table(Model.getTableName(modelClass), TableQueryAction.CREATE, builder);
+		table(Model.getTableName(modelClass), TableQueryAction.CREATE, builder, false);
 	}
 
 	public void createTable(String name, Consumer<TableBuilder> builder) {
-		table(name, TableQueryAction.CREATE, builder);
+		table(name, TableQueryAction.CREATE, builder, false);
+	}
+
+	public void createTableIfNotExists(Class<? extends Model<?>> modelClass, Consumer<TableBuilder> builder) {
+		table(Model.getTableName(modelClass), TableQueryAction.CREATE, builder, true);
+	}
+
+	public void createTableIfNotExists(String name, Consumer<TableBuilder> builder) {
+		table(name, TableQueryAction.CREATE, builder, true);
 	}
 
 	// TODO
@@ -63,8 +71,13 @@ public class MigrationBuilder {
 		for (final TableBuilder tableBuilder : tableBuilders) {
 			final Table table = tableBuilder.build();
 
-			sql.append("CREATE TABLE IF NOT EXISTS ")
-					.append(table.getName())
+			sql.append("CREATE TABLE ");
+
+			if (table.isIfNotExists()) {
+				sql.append("IF NOT EXISTS ");
+			}
+
+			sql.append(table.getName())
 					.append(" (")
 					.append(table.getColumns()
 							.stream()
@@ -77,8 +90,9 @@ public class MigrationBuilder {
 	}
 
 
-	private void table(String name, TableQueryAction action, Consumer<TableBuilder> builder) {
+	private void table(String name, TableQueryAction action, Consumer<TableBuilder> builder, boolean ifNotExists) {
 		final TableBuilder tableBuilder = new TableBuilder(name, action);
+		tableBuilder.ifNotExists(ifNotExists);
 		builder.accept(tableBuilder);
 		tableBuilders.add(tableBuilder);
 	}

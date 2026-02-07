@@ -9,11 +9,13 @@ public class Table {
 	private final String name;
 	private final TableQueryAction action;
 	private final List<Column> columns;
+	private final boolean ifNotExists;
 
-	public Table(String name, TableQueryAction action, List<Column> columns) {
+	public Table(String name, TableQueryAction action, List<Column> columns, boolean ifNotExists) {
 		this.name = name;
 		this.action = action;
 		this.columns = columns;
+		this.ifNotExists = ifNotExists;
 	}
 
 	public String getName() {
@@ -28,12 +30,17 @@ public class Table {
 		return columns;
 	}
 
+	public boolean isIfNotExists() {
+		return ifNotExists;
+	}
+
 	@Override
 	public String toString() {
 		return "Table{" +
 				"name='" + name + '\'' +
 				", action=" + action +
 				", columns=" + columns +
+				", ifNotExists=" + ifNotExists +
 				'}';
 	}
 }
