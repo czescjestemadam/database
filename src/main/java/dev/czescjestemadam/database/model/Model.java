@@ -3,10 +3,14 @@ package dev.czescjestemadam.database.model;
 import dev.czescjestemadam.database.exceptions.model.ModelException;
 import dev.czescjestemadam.database.model.annotations.Column;
 import dev.czescjestemadam.database.model.annotations.Table;
+import dev.czescjestemadam.database.model.fields.ConverterMapping;
+import dev.czescjestemadam.database.model.fields.FieldDataConverter;
+import dev.czescjestemadam.database.model.fields.TimestampConverter;
 import dev.czescjestemadam.database.utils.Str;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,6 +19,10 @@ import java.util.function.Function;
 
 public abstract class Model<T extends Model<T>> {
 	protected T original;
+
+	protected final ConverterMapping converterMapping = new ConverterMapping(Map.of(
+			Timestamp.class, new TimestampConverter()
+	));
 
 
 	public abstract T copy();
@@ -81,7 +89,13 @@ public abstract class Model<T extends Model<T>> {
 			}
 
 			try {
-				field.set(this, values.get(columnName));
+				final Object columnValue = values.get(columnName);
+
+				final FieldDataConverter converter = converterMapping.getConverter(field.getType());
+				field.set(
+						this,
+						converter != null ? converter.fromDatabase(columnValue) : columnValue
+				);
 			} catch (final IllegalAccessException e) {
 				throw new ModelException(String.format(
 						"Cannot set field %s value in model %s to collect values",
