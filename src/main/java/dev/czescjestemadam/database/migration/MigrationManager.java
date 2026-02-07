@@ -19,7 +19,7 @@ public class MigrationManager {
 
 	public MigrationManager(List<DatabaseMigration> migrations, DatabaseConnectionManager connectionManager) {
 		this.migrations = migrations.stream()
-				.sorted(Comparator.comparing(migration -> migration.getClass().getSimpleName()))
+				.sorted(Comparator.comparing(DatabaseMigration::getName))
 				.toList();
 		this.connectionManager = connectionManager;
 	}
@@ -41,7 +41,7 @@ public class MigrationManager {
 	}
 
 	public void runMigration(DatabaseMigration migration, MigrationAction action) {
-		LOGGER.info("Running migration {} {}", action.name(), migration.getClass().getSimpleName());
+		LOGGER.info("Running migration {} {}", action.name(), migration.getName());
 
 		final MigrationBuilder builder = new MigrationBuilder(connectionManager.getSqlDialect());
 		action.run(migration, builder);
