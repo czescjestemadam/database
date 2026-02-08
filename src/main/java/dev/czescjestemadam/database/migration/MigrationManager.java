@@ -60,11 +60,13 @@ public class MigrationManager {
 			}
 		}
 
-		repository.insert(
-				migrationNames.stream()
-						.map(name -> new MigrationModel((int)batchId, name))
-						.toList()
-		);
+		if (!migrationNames.isEmpty()) {
+			repository.insert(
+					migrationNames.stream()
+							.map(name -> new MigrationModel((int)batchId, name))
+							.toList()
+			);
+		}
 	}
 
 	public void rollbackMigrations() {
