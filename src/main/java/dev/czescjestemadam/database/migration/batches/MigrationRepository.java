@@ -22,8 +22,7 @@ public class MigrationRepository extends AbstractRepository<MigrationModel> {
 			migrationBuilder.createTableIfNotExists(
 					modelClass, tableBuilder -> {
 						tableBuilder.id();
-						tableBuilder.integer("batch_id")
-								.unique();
+						tableBuilder.integer("batch_id");
 						tableBuilder.string("name")
 								.unique();
 						tableBuilder.timestamp("created_at");
