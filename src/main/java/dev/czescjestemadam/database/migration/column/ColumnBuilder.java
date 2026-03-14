@@ -43,6 +43,15 @@ public class ColumnBuilder {
 		return this;
 	}
 
+	public ColumnBuilder unsigned() {
+		return unsigned(true);
+	}
+
+	public ColumnBuilder unsigned(boolean unsigned) {
+		column.setUnsigned(unsigned);
+		return this;
+	}
+
 	public ColumnBuilder withDefault(Object defaultValue) {
 		column.setDefaultValue(defaultValue);
 		return this;

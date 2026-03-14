@@ -1,5 +1,6 @@
 package dev.czescjestemadam.database.migration.table;
 
+import dev.czescjestemadam.database.dialect.SqlDialect;
 import dev.czescjestemadam.database.migration.column.ColumnBuilder;
 import dev.czescjestemadam.database.migration.column.ColumnType;
 import dev.czescjestemadam.database.query.TableQueryAction;
@@ -10,20 +11,22 @@ import java.util.List;
 public class TableBuilder {
 	private final String name;
 	private final TableQueryAction action;
+	private final SqlDialect sqlDialect;
 	private final List<ColumnBuilder> columnBuilders = new ArrayList<>();
 	private boolean ifNotExists;
 
-	public TableBuilder(String name, TableQueryAction action) {
+	public TableBuilder(String name, TableQueryAction action, SqlDialect sqlDialect) {
 		this.name = name;
 		this.action = action;
+		this.sqlDialect = sqlDialect;
 	}
 
 	// numeric
 
 	public void id() {
-		integer("id")
-				.primaryKey()
-				.autoIncrement();
+		column(sqlDialect == SqlDialect.SQLITE ? ColumnType.INTEGER : ColumnType.BIGINT, "id")
+			.primaryKey()
+			.autoIncrement();
 	}
 
 	// TODO: foreign id

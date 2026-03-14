@@ -9,6 +9,7 @@ public class Column {
 	private boolean autoIncrement;
 	private boolean unique;
 	private boolean nullable;
+	private boolean unsigned;
 	private Object defaultValue;
 
 	public Column(ColumnType type, int size, String name) {
@@ -61,6 +62,14 @@ public class Column {
 		this.nullable = nullable;
 	}
 
+	public boolean isUnsigned() {
+		return unsigned;
+	}
+
+	public void setUnsigned(boolean unsigned) {
+		this.unsigned = unsigned;
+	}
+
 	public Object getDefaultValue() {
 		return defaultValue;
 	}
@@ -72,14 +81,15 @@ public class Column {
 	@Override
 	public String toString() {
 		return "Column{" +
-				"type=" + type +
-				", size=" + size +
-				", name='" + name + '\'' +
-				", primaryKey=" + primaryKey +
-				", autoIncrement=" + autoIncrement +
-				", unique=" + unique +
-				", nullable=" + nullable +
-				", defaultValue=" + defaultValue +
-				'}';
+			"type=" + type +
+			", size=" + size +
+			", name='" + name + '\'' +
+			", primaryKey=" + primaryKey +
+			", autoIncrement=" + autoIncrement +
+			", unique=" + unique +
+			", nullable=" + nullable +
+			", unsigned=" + unsigned +
+			", defaultValue=" + defaultValue +
+			'}';
 	}
 }

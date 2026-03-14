@@ -91,7 +91,7 @@ public class MigrationBuilder {
 
 
 	private void table(String name, TableQueryAction action, Consumer<TableBuilder> builder, boolean ifNotExists) {
-		final TableBuilder tableBuilder = new TableBuilder(name, action);
+		final TableBuilder tableBuilder = new TableBuilder(name, action, sqlDialect);
 		tableBuilder.ifNotExists(ifNotExists);
 		builder.accept(tableBuilder);
 		tableBuilders.add(tableBuilder);
@@ -104,6 +104,10 @@ public class MigrationBuilder {
 
 		if (column.getSize() > 0) {
 			sql.append('(').append(column.getSize()).append(')');
+		}
+
+		if (column.isUnsigned() && sqlDialect == SqlDialect.MYSQL) {
+			sql.append(" UNSIGNED");
 		}
 
 		if (!column.isNullable()) {
