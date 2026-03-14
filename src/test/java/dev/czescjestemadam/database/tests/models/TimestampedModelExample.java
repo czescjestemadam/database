@@ -4,11 +4,12 @@ import dev.czescjestemadam.database.model.Model;
 import dev.czescjestemadam.database.model.interfaces.Timestamped;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Objects;
 
 public class TimestampedModelExample extends Model<TimestampedModelExample> implements Timestamped {
-	public Integer id;
+	public BigInteger id;
 	public String name;
 	@Nullable
 	public Timestamp createdAt;
@@ -18,7 +19,7 @@ public class TimestampedModelExample extends Model<TimestampedModelExample> impl
 	public TimestampedModelExample() {
 	}
 
-	public TimestampedModelExample(Integer id, String name, @Nullable Timestamp createdAt, @Nullable Timestamp updatedAt) {
+	public TimestampedModelExample(BigInteger id, String name, @Nullable Timestamp createdAt, @Nullable Timestamp updatedAt) {
 		this.id = id;
 		this.name = name;
 		this.createdAt = createdAt;
@@ -31,7 +32,7 @@ public class TimestampedModelExample extends Model<TimestampedModelExample> impl
 	}
 
 	@Override
-	public Integer getId() {
+	public BigInteger getId() {
 		return id;
 	}
 

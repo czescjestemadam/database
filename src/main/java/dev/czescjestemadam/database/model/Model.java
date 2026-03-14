@@ -3,6 +3,7 @@ package dev.czescjestemadam.database.model;
 import dev.czescjestemadam.database.exceptions.model.ModelException;
 import dev.czescjestemadam.database.model.annotations.Column;
 import dev.czescjestemadam.database.model.annotations.Table;
+import dev.czescjestemadam.database.model.fields.BigIntegerConverter;
 import dev.czescjestemadam.database.model.fields.ConverterMapping;
 import dev.czescjestemadam.database.model.fields.FieldDataConverter;
 import dev.czescjestemadam.database.model.fields.TimestampConverter;
@@ -10,6 +11,7 @@ import dev.czescjestemadam.database.utils.Str;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,13 +23,14 @@ public abstract class Model<T extends Model<T>> {
 	protected T original;
 
 	protected final ConverterMapping converterMapping = new ConverterMapping(Map.of(
+		BigInteger.class, new BigIntegerConverter(),
 		Timestamp.class, new TimestampConverter()
 	));
 
 
 	public abstract T copy();
 
-	public abstract Integer getId();
+	public abstract BigInteger getId();
 
 	public void copyToOriginal() {
 		original = copy();

@@ -3,10 +3,11 @@ package dev.czescjestemadam.database.tests.models;
 import dev.czescjestemadam.database.model.Model;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.Objects;
 
 public class Example extends Model<Example> {
-	public Integer id;
+	public BigInteger id;
 	public String str;
 	@Nullable
 	public String strNullable;
@@ -16,7 +17,7 @@ public class Example extends Model<Example> {
 	public Example() {
 	}
 
-	public Example(Integer id, String str, @Nullable String strNullable, String strDflt, String strUnique) {
+	public Example(BigInteger id, String str, @Nullable String strNullable, String strDflt, String strUnique) {
 		this.id = id;
 		this.str = str;
 		this.strNullable = strNullable;
@@ -30,7 +31,7 @@ public class Example extends Model<Example> {
 	}
 
 	@Override
-	public Integer getId() {
+	public BigInteger getId() {
 		return id;
 	}
 

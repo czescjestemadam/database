@@ -3,11 +3,12 @@ package dev.czescjestemadam.database.migration.batches;
 import dev.czescjestemadam.database.model.Model;
 import dev.czescjestemadam.database.model.annotations.Table;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 
 @Table("migrations")
 public class MigrationModel extends Model<MigrationModel> {
-	public Integer id;
+	public BigInteger id;
 	public Integer batchId;
 	public String name;
 	public Timestamp createdAt;
@@ -19,7 +20,7 @@ public class MigrationModel extends Model<MigrationModel> {
 		this(null, batchId, name, new Timestamp(System.currentTimeMillis()));
 	}
 
-	public MigrationModel(Integer id, Integer batchId, String name, Timestamp createdAt) {
+	public MigrationModel(BigInteger id, Integer batchId, String name, Timestamp createdAt) {
 		this.id = id;
 		this.batchId = batchId;
 		this.name = name;
@@ -32,7 +33,7 @@ public class MigrationModel extends Model<MigrationModel> {
 	}
 
 	@Override
-	public Integer getId() {
+	public BigInteger getId() {
 		return id;
 	}
 

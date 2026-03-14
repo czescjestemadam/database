@@ -8,19 +8,33 @@ import dev.czescjestemadam.database.query.impl.SelectQuery;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public interface Repository<T extends Model<T>> {
 	@Nullable
-	T find(int id);
+	T find(BigInteger id);
+
+	@Nullable
+	default T find(int id) {
+		return find(BigInteger.valueOf(id));
+	}
 
 	/**
 	 * @throws ModelNotFoundException when no model with given id found
 	 */
 	@NotNull
-	T findOrFail(int id);
+	T findOrFail(BigInteger id);
+
+	/**
+	 * @throws ModelNotFoundException when no model with given id found
+	 */
+	@NotNull
+	default T findOrFail(int id) {
+		return findOrFail(BigInteger.valueOf(id));
+	}
 
 	@Nullable
 	T first(QueryBuilder queryBuilder);
@@ -31,11 +45,20 @@ public interface Repository<T extends Model<T>> {
 	@NotNull
 	T firstOrFail(QueryBuilder queryBuilder);
 
-	boolean exists(int id);
+
+	boolean exists(BigInteger id);
+
+	default boolean exists(int id) {
+		return exists(BigInteger.valueOf(id));
+	}
 
 	void update(T model);
 
-	boolean delete(int id);
+	boolean delete(BigInteger id);
+
+	default boolean delete(int id) {
+		return delete(BigInteger.valueOf(id));
+	}
 
 	default boolean delete(T model) {
 		return model.getId() != null && delete(model.getId());

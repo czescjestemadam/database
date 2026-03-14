@@ -11,6 +11,7 @@ import dev.czescjestemadam.database.query.impl.UpdateQuery;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -31,7 +32,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@Nullable
 	@Override
-	public T find(int id) {
+	public T find(BigInteger id) {
 		return manager.connected(connection -> {
 			return find(connection, id);
 		});
@@ -39,11 +40,11 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@NotNull
 	@Override
-	public T findOrFail(int id) {
+	public T findOrFail(BigInteger id) {
 		final T model = find(id);
 		if (model == null) {
 			throw new ModelNotFoundException(String.format(
-				"Model %s with id %d not found",
+				"Model %s with id %s not found",
 				modelClass,
 				id
 			));
@@ -77,7 +78,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	}
 
 	@Override
-	public boolean exists(int id) {
+	public boolean exists(BigInteger id) {
 		return manager.connected(connection -> {
 			final ResultSet resultSet = query("id")
 				.whereEquals("id", id)
@@ -101,7 +102,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	}
 
 	@Override
-	public boolean delete(int id) {
+	public boolean delete(BigInteger id) {
 		return manager.connected(connection -> {
 			final Integer updateCount = query()
 				.whereEquals("id", id)
@@ -134,8 +135,8 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 				final ResultSet generatedKeys = query.getGeneratedKeys();
 
 				if (generatedKeys.next()) {
-					final int lastInsertRowId = generatedKeys.getInt(1);
-					return find(connection, lastInsertRowId);
+					final long lastInsertRowId = generatedKeys.getLong(1);
+					return find(connection, BigInteger.valueOf(lastInsertRowId));
 				}
 			}
 
@@ -231,7 +232,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 		return Model.getTableName(modelClass);
 	}
 
-	private T find(Connection connection, int id) throws SQLException {
+	private T find(Connection connection, BigInteger id) throws SQLException {
 		final List<T> models = select(
 			connection,
 			query().whereEquals("id", id)

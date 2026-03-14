@@ -5,6 +5,7 @@ import dev.czescjestemadam.database.model.annotations.Table;
 import dev.czescjestemadam.database.tests.models.Example;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,33 +22,33 @@ class ModelTest {
 
 	@Test
 	void copy() {
-		final Example example = new Example(1, "str", null, "not_dflt", "unique");
+		final Example example = new Example(BigInteger.ONE, "str", null, "not_dflt", "unique");
 		final Example copy = example.copy();
 		assertNotSame(example, copy);
 		assertEquals(example, copy);
 
-		copy.id = 0;
+		copy.id = BigInteger.ZERO;
 		assertNotEquals(example, copy);
 	}
 
 	@Test
 	void original() {
-		final Example example = new Example(1, "str", null, "not_dflt", "unique");
+		final Example example = new Example(BigInteger.ONE, "str", null, "not_dflt", "unique");
 		assertNull(example.getOriginal());
 
 		example.copyToOriginal();
 		assertFalse(example.isDirty());
 
-		example.id = 0;
+		example.id = BigInteger.ZERO;
 		assertTrue(example.isDirty());
 	}
 
 	@Test
 	void getValues() {
-		final Example example = new Example(1, "str", null, "not_dflt", "unique");
+		final Example example = new Example(BigInteger.ONE, "str", null, "not_dflt", "unique");
 
 		final Map<String, Object> values = new HashMap<>();
-		values.put("id", 1);
+		values.put("id", BigInteger.ONE);
 		values.put("str", "str");
 		values.put("str_nullable", null);
 		values.put("str_dflt", "not_dflt");
@@ -58,12 +59,12 @@ class ModelTest {
 
 	@Test
 	void setValues() {
-		final Example example = new Example(1, "str", null, "not_dflt", "unique");
+		final Example example = new Example(BigInteger.ONE, "str", null, "not_dflt", "unique");
 
 		final Example example2 = new Example();
 
 		final Map<String, Object> values = new HashMap<>();
-		values.put("id", 1);
+		values.put("id", BigInteger.ONE);
 		values.put("str", "str");
 		values.put("str_nullable", null);
 		values.put("str_dflt", "not_dflt");
@@ -82,8 +83,8 @@ class ModelTest {
 		}
 
 		@Override
-		public Integer getId() {
-			return 0;
+		public BigInteger getId() {
+			return BigInteger.ZERO;
 		}
 	}
 
@@ -94,8 +95,8 @@ class ModelTest {
 		}
 
 		@Override
-		public Integer getId() {
-			return 0;
+		public BigInteger getId() {
+			return BigInteger.ZERO;
 		}
 	}
 
@@ -107,8 +108,8 @@ class ModelTest {
 		}
 
 		@Override
-		public Integer getId() {
-			return 0;
+		public BigInteger getId() {
+			return BigInteger.ZERO;
 		}
 	}
 }
