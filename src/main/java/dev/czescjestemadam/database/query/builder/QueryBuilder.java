@@ -7,15 +7,13 @@ import dev.czescjestemadam.database.query.builder.condition.QueryCondition;
 import dev.czescjestemadam.database.query.builder.condition.QueryConditionBuilder;
 import dev.czescjestemadam.database.query.builder.condition.QueryConditionGroup;
 import dev.czescjestemadam.database.query.builder.condition.compare.QueryCompareCondition;
+import dev.czescjestemadam.database.query.builder.condition.compare.QueryInCondition;
 import dev.czescjestemadam.database.query.builder.condition.compare.QueryNullCompareCondition;
 import dev.czescjestemadam.database.query.builder.condition.compare.QueryValueCompareCondition;
 import dev.czescjestemadam.database.query.impl.SelectQuery;
 import dev.czescjestemadam.database.query.impl.UpdateQuery;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryOrderBuilder<QueryBuilder> {
@@ -240,19 +238,30 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		sql.append(condition.getColumn())
 			.append(' ');
 
-		if (condition instanceof QueryValueCompareCondition valueCompareCondition) {
-			sql.append(valueCompareCondition.getComparator())
-				.append(" ?");
+		switch (condition) {
+			case QueryValueCompareCondition valueCompareCondition -> {
+				sql.append(valueCompareCondition.getComparator())
+					.append(" ?");
 
-			parameters.add(valueCompareCondition.getValue());
-		} else if (condition instanceof QueryNullCompareCondition nullCompareCondition) {
-			sql.append(
+				parameters.add(valueCompareCondition.getValue());
+			}
+			case QueryNullCompareCondition nullCompareCondition -> sql.append(
 				nullCompareCondition.isInverted() ?
 					"IS NOT NULL" :
 					"IS NULL"
 			);
-		} else {
-			throw new QueryException("Unexpected QueryCompareCondition instance: " + condition);
+			case QueryInCondition inCondition -> {
+				if (inCondition.isInverted()) {
+					sql.append("NOT ");
+				}
+
+				sql.append("IN (")
+					.append(String.join(", ", Collections.nCopies(inCondition.getValues().size(), "?")))
+					.append(')');
+
+				parameters.addAll(inCondition.getValues());
+			}
+			default -> throw new QueryException("Unexpected QueryCompareCondition instance: " + condition);
 		}
 	}
 

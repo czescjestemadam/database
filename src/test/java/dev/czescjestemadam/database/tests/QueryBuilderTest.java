@@ -6,11 +6,10 @@ import dev.czescjestemadam.database.query.impl.SelectQuery;
 import dev.czescjestemadam.database.query.impl.UpdateQuery;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.junit.jupiter.api.Assertions.*;
 
 class QueryBuilderTest {
 	@Test
@@ -185,6 +184,154 @@ class QueryBuilderTest {
 		assertEquals(
 			"DELETE FROM examples WHERE str = ? LIMIT 100 OFFSET 500",
 			query.getSql()
+		);
+	}
+
+	@Test
+	void whereIn() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereIn("status", "active", "pending", "archived")
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE status IN (?, ?, ?);",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ "active", "pending", "archived" },
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void whereInList() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereIn("id", List.of(1, 2, 3, 4, 5))
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE id IN (?, ?, ?, ?, ?);",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ 1, 2, 3, 4, 5 },
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void whereNotIn() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereNotIn("status", "deleted", "banned")
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE status NOT IN (?, ?);",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ "deleted", "banned" },
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void orWhereIn() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereEquals("status", "active")
+			.orWhereIn("id", 1, 2, 3)
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE status = ? OR id IN (?, ?, ?);",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ "active", 1, 2, 3 },
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void orWhereNotIn() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereEquals("type", "user")
+			.orWhereNotIn("status", "deleted", "banned")
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE type = ? OR status NOT IN (?, ?);",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ "user", "deleted", "banned" },
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void inWithLimit() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereIn("category", List.of("news", "sports"))
+			.limit(10)
+			.offset(5)
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE category IN (?, ?) LIMIT 10 OFFSET 5;",
+			query.getSql()
+		);
+	}
+
+	@Test
+	void inWithDelete() {
+		final UpdateQuery query = new QueryBuilder("examples", Set.of())
+			.whereNotIn("id", 1, 2, 3)
+			.delete();
+
+		assertEquals(
+			"DELETE FROM examples WHERE id NOT IN (?, ?, ?)",
+			query.getSql()
+		);
+	}
+
+	@Test
+	void emptyIn() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereIn("status", List.of())
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE status IN ();",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{},
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void multipleInConditions() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereIn("status", "active", "pending")
+			.whereNotIn("type", "system", "temp")
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE status IN (?, ?) AND type NOT IN (?, ?);",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ "active", "pending", "system", "temp" },
+			query.getParameters().toArray()
 		);
 	}
 }

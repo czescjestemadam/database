@@ -1,7 +1,11 @@
 package dev.czescjestemadam.database.query.builder.condition;
 
+import dev.czescjestemadam.database.query.builder.condition.compare.QueryInCondition;
 import dev.czescjestemadam.database.query.builder.condition.compare.QueryNullCompareCondition;
 import dev.czescjestemadam.database.query.builder.condition.compare.QueryValueCompareCondition;
+
+import java.util.Collection;
+import java.util.List;
 
 public interface QueryConditionBuilder<T> {
 	T where(QueryCondition condition);
@@ -84,5 +88,57 @@ public interface QueryConditionBuilder<T> {
 			true,
 			column
 		));
+	}
+
+	default T whereIn(String column, Collection<?> values) {
+		return where(new QueryInCondition(
+			QueryConditionJoinType.AND,
+			false,
+			column,
+			List.copyOf(values)
+		));
+	}
+
+	default T whereIn(String column, Object... values) {
+		return whereIn(column, List.of(values));
+	}
+
+	default T whereNotIn(String column, Collection<?> values) {
+		return where(new QueryInCondition(
+			QueryConditionJoinType.AND,
+			true,
+			column,
+			List.copyOf(values)
+		));
+	}
+
+	default T whereNotIn(String column, Object... values) {
+		return whereNotIn(column, List.of(values));
+	}
+
+	default T orWhereIn(String column, Collection<?> values) {
+		return where(new QueryInCondition(
+			QueryConditionJoinType.OR,
+			false,
+			column,
+			List.copyOf(values)
+		));
+	}
+
+	default T orWhereIn(String column, Object... values) {
+		return orWhereIn(column, List.of(values));
+	}
+
+	default T orWhereNotIn(String column, Collection<?> values) {
+		return where(new QueryInCondition(
+			QueryConditionJoinType.OR,
+			true,
+			column,
+			List.copyOf(values)
+		));
+	}
+
+	default T orWhereNotIn(String column, Object... values) {
+		return orWhereNotIn(column, List.of(values));
 	}
 }
