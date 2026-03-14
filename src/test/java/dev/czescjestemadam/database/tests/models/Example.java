@@ -37,11 +37,11 @@ public class Example extends Model<Example> {
 	@Override
 	public final boolean equals(Object o) {
 		return o instanceof final Example example &&
-				id.equals(example.id) &&
-				str.equals(example.str) &&
-				Objects.equals(strNullable, example.strNullable) &&
-				strDflt.equals(example.strDflt) &&
-				strUnique.equals(example.strUnique);
+			id.equals(example.id) &&
+			str.equals(example.str) &&
+			Objects.equals(strNullable, example.strNullable) &&
+			strDflt.equals(example.strDflt) &&
+			strUnique.equals(example.strUnique);
 	}
 
 	@Override

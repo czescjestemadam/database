@@ -64,20 +64,20 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		final List<Object> parameters = new ArrayList<>();
 
 		sql.append("SELECT ")
-				.append(buildColumns())
-				.append(" FROM ")
-				.append(table);
+			.append(buildColumns())
+			.append(" FROM ")
+			.append(table);
 
 		appendConditions(sql, parameters);
 
 		if (!orders.isEmpty()) {
 			sql.append(" ORDER BY ")
-					.append(buildOrders());
+				.append(buildOrders());
 		}
 
 		if (limit > 0) {
 			sql.append(" LIMIT ")
-					.append(limit);
+				.append(limit);
 		}
 
 		sql.append(';');
@@ -121,8 +121,8 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		final List<Object> parameters = new ArrayList<>();
 
 		sql.append("UPDATE ")
-				.append(table)
-				.append(" SET ");
+			.append(table)
+			.append(" SET ");
 
 		for (int i = 0; i < updates.size(); i++) {
 			final Map.Entry<String, Object> entry = updates.get(i);
@@ -132,7 +132,7 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 			}
 
 			sql.append(entry.getKey())
-					.append(" = ?");
+				.append(" = ?");
 
 			parameters.add(entry.getValue());
 		}
@@ -141,12 +141,12 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 
 		if (!orders.isEmpty()) {
 			sql.append(" ORDER BY ")
-					.append(buildOrders());
+				.append(buildOrders());
 		}
 
 		if (limit > 0) {
 			sql.append(" LIMIT ")
-					.append(limit);
+				.append(limit);
 		}
 
 		return new UpdateQuery(sql.toString(), parameters, false);
@@ -157,18 +157,18 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		final List<Object> parameters = new ArrayList<>();
 
 		sql.append("DELETE FROM ")
-				.append(table);
+			.append(table);
 
 		appendConditions(sql, parameters);
 
 		if (!orders.isEmpty()) {
 			sql.append(" ORDER BY ")
-					.append(buildOrders());
+				.append(buildOrders());
 		}
 
 		if (limit > 0) {
 			sql.append(" LIMIT ")
-					.append(limit);
+				.append(limit);
 		}
 
 		return new UpdateQuery(sql.toString(), parameters, false);
@@ -189,17 +189,17 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 	}
 
 	private static void buildConditions(
-			List<QueryCondition> conditions,
-			StringBuilder sql,
-			List<Object> parameters
+		List<QueryCondition> conditions,
+		StringBuilder sql,
+		List<Object> parameters
 	) {
 		for (int i = 0; i < conditions.size(); i++) {
 			final QueryCondition condition = conditions.get(i);
 
 			if (i > 0) {
 				sql.append(' ')
-						.append(condition.getJoinType())
-						.append(' ');
+					.append(condition.getJoinType())
+					.append(' ');
 			}
 
 			if (condition instanceof QueryConditionGroup group) {
@@ -215,23 +215,23 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 	}
 
 	private static void buildCompareCondition(
-			QueryCompareCondition condition,
-			StringBuilder sql,
-			List<Object> parameters
+		QueryCompareCondition condition,
+		StringBuilder sql,
+		List<Object> parameters
 	) {
 		sql.append(condition.getColumn())
-				.append(' ');
+			.append(' ');
 
 		if (condition instanceof QueryValueCompareCondition valueCompareCondition) {
 			sql.append(valueCompareCondition.getComparator())
-					.append(" ?");
+				.append(" ?");
 
 			parameters.add(valueCompareCondition.getValue());
 		} else if (condition instanceof QueryNullCompareCondition nullCompareCondition) {
 			sql.append(
-					nullCompareCondition.isInverted() ?
-							"IS NOT NULL" :
-							"IS NULL"
+				nullCompareCondition.isInverted() ?
+					"IS NOT NULL" :
+					"IS NULL"
 			);
 		} else {
 			throw new QueryException("Unexpected QueryCompareCondition instance: " + condition);
@@ -240,7 +240,7 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 
 	private String buildOrders() {
 		return orders.stream()
-				.map(QueryOrder::toString)
-				.collect(Collectors.joining(", "));
+			.map(QueryOrder::toString)
+			.collect(Collectors.joining(", "));
 	}
 }

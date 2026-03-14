@@ -27,7 +27,7 @@ public class DatabaseConnectionManager {
 			return func.apply(connection);
 		} catch (final SQLException e) {
 			throw ExceptionMapper.create(e)
-					.orElse(new DatabaseException("Error getting connection", e));
+				.orElse(new DatabaseException("Error getting connection", e));
 		}
 	}
 
@@ -58,10 +58,10 @@ public class DatabaseConnectionManager {
 	@Override
 	public String toString() {
 		return "DatabaseConnectionManager{" +
-				"config=" + config +
-				", sqlDialect=" + sqlDialect +
-				", dataSource=" + dataSource +
-				'}';
+			"config=" + config +
+			", sqlDialect=" + sqlDialect +
+			", dataSource=" + dataSource +
+			'}';
 	}
 
 	@FunctionalInterface

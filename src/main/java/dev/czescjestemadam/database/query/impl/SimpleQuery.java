@@ -19,9 +19,9 @@ public class SimpleQuery extends AbstractPreparedQuery<Boolean> {
 	@Override
 	public String toString() {
 		return "SimpleQuery{" +
-				"sql='" + sql + '\'' +
-				", parameters=" + parameters +
-				", returnGeneratedKeys=" + returnGeneratedKeys +
-				'}';
+			"sql='" + sql + '\'' +
+			", parameters=" + parameters +
+			", returnGeneratedKeys=" + returnGeneratedKeys +
+			'}';
 	}
 }

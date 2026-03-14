@@ -19,16 +19,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MigrationBatchTest {
 	private static final DatabaseConnectionManager MANAGER = new DatabaseConnectionManager(
-			new HikariConfigBuilder()
-					.sqlite(Path.of("src/test/resources/test-migrations.db"))
-					.build()
+		new HikariConfigBuilder()
+			.sqlite(Path.of("src/test/resources/test-migrations.db"))
+			.build()
 	);
 
 	private static final ExampleMigration MIGRATION = new ExampleMigration();
 
 	private static final MigrationManager MIGRATION_MANAGER = new MigrationManager(
-			List.of(MIGRATION),
-			MANAGER
+		List.of(MIGRATION),
+		MANAGER
 	);
 	private static final MigrationRepository MIGRATION_REPOSITORY = new MigrationRepository(MANAGER);
 

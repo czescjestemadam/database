@@ -37,10 +37,10 @@ public class Table {
 	@Override
 	public String toString() {
 		return "Table{" +
-				"name='" + name + '\'' +
-				", action=" + action +
-				", columns=" + columns +
-				", ifNotExists=" + ifNotExists +
-				'}';
+			"name='" + name + '\'' +
+			", action=" + action +
+			", columns=" + columns +
+			", ifNotExists=" + ifNotExists +
+			'}';
 	}
 }

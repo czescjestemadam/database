@@ -23,8 +23,8 @@ public class QueryConditionGroup implements QueryCondition {
 	@Override
 	public String toString() {
 		return "QueryConditionGroup{" +
-				"joinType=" + joinType +
-				", conditions=" + conditions +
-				'}';
+			"joinType=" + joinType +
+			", conditions=" + conditions +
+			'}';
 	}
 }

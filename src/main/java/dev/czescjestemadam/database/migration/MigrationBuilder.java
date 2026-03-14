@@ -78,12 +78,12 @@ public class MigrationBuilder {
 			}
 
 			sql.append(table.getName())
-					.append(" (")
-					.append(table.getColumns()
-							.stream()
-							.map(this::buildColumnSql)
-							.collect(Collectors.joining(", ")))
-					.append(");");
+				.append(" (")
+				.append(table.getColumns()
+					.stream()
+					.map(this::buildColumnSql)
+					.collect(Collectors.joining(", ")))
+				.append(");");
 		}
 
 		return new SimpleQuery(sql.toString(), List.of());

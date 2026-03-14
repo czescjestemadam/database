@@ -43,9 +43,9 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 		final T model = find(id);
 		if (model == null) {
 			throw new ModelNotFoundException(String.format(
-					"Model %s with id %d not found",
-					modelClass,
-					id
+				"Model %s with id %d not found",
+				modelClass,
+				id
 			));
 		}
 		return model;
@@ -55,8 +55,8 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	@Override
 	public T first(QueryBuilder queryBuilder) {
 		final List<T> models = select(
-				queryBuilder.limit(1)
-						.select()
+			queryBuilder.limit(1)
+				.select()
 		);
 
 		return models.isEmpty() ? null : models.getFirst();
@@ -68,8 +68,8 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 		final T model = first(queryBuilder);
 		if (model == null) {
 			throw new ModelNotFoundException(String.format(
-					"Model %s with given query not found",
-					modelClass
+				"Model %s with given query not found",
+				modelClass
 			));
 		}
 
@@ -80,9 +80,9 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	public boolean exists(int id) {
 		return manager.connected(connection -> {
 			final ResultSet resultSet = query("id")
-					.whereEquals("id", id)
-					.select()
-					.execute(connection);
+				.whereEquals("id", id)
+				.select()
+				.execute(connection);
 
 			return resultSet.first();
 		});
@@ -94,9 +94,9 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 			final Map<String, Object> dirtyValues = model.getDirtyValues();
 
 			query()
-					.whereEquals("id", model.getId())
-					.update(new ArrayList<>(dirtyValues.entrySet()))
-					.execute(connection);
+				.whereEquals("id", model.getId())
+				.update(new ArrayList<>(dirtyValues.entrySet()))
+				.execute(connection);
 		});
 	}
 
@@ -104,9 +104,9 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	public boolean delete(int id) {
 		return manager.connected(connection -> {
 			final Integer updateCount = query()
-					.whereEquals("id", id)
-					.delete()
-					.execute(connection);
+				.whereEquals("id", id)
+				.delete()
+				.execute(connection);
 
 			return updateCount > 0;
 		});
@@ -124,9 +124,9 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	public T insert(Map<String, Object> values) {
 		return manager.connected(connection -> {
 			final UpdateQuery query = insertQuery()
-					.columns(values.keySet())
-					.values(new ArrayList<>(values.values()))
-					.build(true);
+				.columns(values.keySet())
+				.values(new ArrayList<>(values.values()))
+				.build(true);
 
 			final Integer updateCount = query.execute(connection);
 
@@ -150,9 +150,9 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 		}
 
 		insertValues(
-				models.stream()
-						.map(Model::getValues)
-						.toList()
+			models.stream()
+				.map(Model::getValues)
+				.toList()
 		);
 	}
 
@@ -176,7 +176,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 			}
 
 			queryBuilder.build()
-					.execute(connection);
+				.execute(connection);
 		});
 	}
 
@@ -184,8 +184,8 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	public long count() {
 		return manager.connected(connection -> {
 			final ResultSet resultSet = query("COUNT(*)")
-					.select()
-					.execute(connection);
+				.select()
+				.execute(connection);
 
 			if (resultSet.next()) {
 				return resultSet.getLong(1);
@@ -233,9 +233,9 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	private T find(Connection connection, int id) throws SQLException {
 		final List<T> models = select(
-				connection,
-				query().whereEquals("id", id)
-						.select()
+			connection,
+			query().whereEquals("id", id)
+				.select()
 		);
 
 		return models.isEmpty() ? null : models.getFirst();

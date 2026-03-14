@@ -181,12 +181,12 @@ public class TableBuilder {
 
 	public Table build() {
 		return new Table(
-				name,
-				action,
-				columnBuilders.stream()
-						.map(ColumnBuilder::build)
-						.toList(),
-				ifNotExists
+			name,
+			action,
+			columnBuilders.stream()
+				.map(ColumnBuilder::build)
+				.toList(),
+			ifNotExists
 		);
 	}
 }

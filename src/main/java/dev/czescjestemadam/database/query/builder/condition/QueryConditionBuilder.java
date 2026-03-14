@@ -8,21 +8,21 @@ public interface QueryConditionBuilder<T> {
 
 	default T where(String column, String comparator, Object value) {
 		return where(new QueryValueCompareCondition(
-				QueryConditionJoinType.AND,
-				false,
-				column,
-				comparator,
-				value
+			QueryConditionJoinType.AND,
+			false,
+			column,
+			comparator,
+			value
 		));
 	}
 
 	default T orWhere(String column, String comparator, Object value) {
 		return where(new QueryValueCompareCondition(
-				QueryConditionJoinType.OR,
-				false,
-				column,
-				comparator,
-				value
+			QueryConditionJoinType.OR,
+			false,
+			column,
+			comparator,
+			value
 		));
 	}
 
@@ -36,53 +36,53 @@ public interface QueryConditionBuilder<T> {
 
 	default T whereNot(String column, Object value) {
 		return where(new QueryValueCompareCondition(
-				QueryConditionJoinType.AND,
-				true,
-				column,
-				"=",
-				value
+			QueryConditionJoinType.AND,
+			true,
+			column,
+			"=",
+			value
 		));
 	}
 
 	default T orWhereNot(String column, Object value) {
 		return where(new QueryValueCompareCondition(
-				QueryConditionJoinType.OR,
-				true,
-				column,
-				"=",
-				value
+			QueryConditionJoinType.OR,
+			true,
+			column,
+			"=",
+			value
 		));
 	}
 
 	default T whereNull(String column) {
 		return where(new QueryNullCompareCondition(
-				QueryConditionJoinType.AND,
-				false,
-				column
+			QueryConditionJoinType.AND,
+			false,
+			column
 		));
 	}
 
 	default T orWhereNull(String column) {
 		return where(new QueryNullCompareCondition(
-				QueryConditionJoinType.OR,
-				false,
-				column
+			QueryConditionJoinType.OR,
+			false,
+			column
 		));
 	}
 
 	default T whereNotNull(String column) {
 		return where(new QueryNullCompareCondition(
-				QueryConditionJoinType.AND,
-				true,
-				column
+			QueryConditionJoinType.AND,
+			true,
+			column
 		));
 	}
 
 	default T orWhereNotNull(String column) {
 		return where(new QueryNullCompareCondition(
-				QueryConditionJoinType.OR,
-				true,
-				column
+			QueryConditionJoinType.OR,
+			true,
+			column
 		));
 	}
 }

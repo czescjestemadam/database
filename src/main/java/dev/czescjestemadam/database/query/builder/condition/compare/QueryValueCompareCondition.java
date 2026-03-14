@@ -7,11 +7,11 @@ public class QueryValueCompareCondition extends QueryCompareCondition {
 	private final Object value;
 
 	public QueryValueCompareCondition(
-			QueryConditionJoinType joinType,
-			boolean inverted,
-			String column,
-			String comparator,
-			Object value
+		QueryConditionJoinType joinType,
+		boolean inverted,
+		String column,
+		String comparator,
+		Object value
 	) {
 		super(joinType, inverted, column);
 		this.comparator = comparator;
@@ -29,11 +29,11 @@ public class QueryValueCompareCondition extends QueryCompareCondition {
 	@Override
 	public String toString() {
 		return "QueryValueCompareCondition{" +
-				"comparator='" + comparator + '\'' +
-				", value=" + value +
-				", joinType=" + joinType +
-				", inverted=" + inverted +
-				", column='" + column + '\'' +
-				'}';
+			"comparator='" + comparator + '\'' +
+			", value=" + value +
+			", joinType=" + joinType +
+			", inverted=" + inverted +
+			", column='" + column + '\'' +
+			'}';
 	}
 }

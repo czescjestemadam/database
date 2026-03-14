@@ -4,9 +4,9 @@ import dev.czescjestemadam.database.query.builder.condition.QueryConditionJoinTy
 
 public class QueryNullCompareCondition extends QueryCompareCondition {
 	public QueryNullCompareCondition(
-			QueryConditionJoinType joinType,
-			boolean inverted,
-			String column
+		QueryConditionJoinType joinType,
+		boolean inverted,
+		String column
 	) {
 		super(joinType, inverted, column);
 	}
@@ -14,9 +14,9 @@ public class QueryNullCompareCondition extends QueryCompareCondition {
 	@Override
 	public String toString() {
 		return "QueryNullCompareCondition{" +
-				"joinType=" + joinType +
-				", inverted=" + inverted +
-				", column='" + column + '\'' +
-				'}';
+			"joinType=" + joinType +
+			", inverted=" + inverted +
+			", column='" + column + '\'' +
+			'}';
 	}
 }

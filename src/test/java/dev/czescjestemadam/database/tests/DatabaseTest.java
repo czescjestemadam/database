@@ -3,8 +3,8 @@ package dev.czescjestemadam.database.tests;
 import dev.czescjestemadam.database.DatabaseConnectionManager;
 import dev.czescjestemadam.database.HikariConfigBuilder;
 import dev.czescjestemadam.database.exceptions.DatabaseException;
-import dev.czescjestemadam.database.exceptions.model.ModelNotFoundException;
 import dev.czescjestemadam.database.exceptions.constraint.UniqueConstraintException;
+import dev.czescjestemadam.database.exceptions.model.ModelNotFoundException;
 import dev.czescjestemadam.database.migration.MigrationAction;
 import dev.czescjestemadam.database.migration.MigrationManager;
 import dev.czescjestemadam.database.repository.Repository;
@@ -27,12 +27,12 @@ class DatabaseTest {
 	private static final Path sqlitePath = Path.of("src/test/resources/test.db");
 
 	private static final DatabaseConnectionManager MANAGER = new DatabaseConnectionManager(
-			new HikariConfigBuilder()
-					.sqlite(sqlitePath)
-					.build()
+		new HikariConfigBuilder()
+			.sqlite(sqlitePath)
+			.build()
 	);
 
-	private static final MigrationManager MIGRATION_MANAGER = new  MigrationManager(List.of(), MANAGER);
+	private static final MigrationManager MIGRATION_MANAGER = new MigrationManager(List.of(), MANAGER);
 
 	private static Repository<Example> repository;
 
@@ -50,8 +50,8 @@ class DatabaseTest {
 		}
 
 		assertThrowsExactly(
-				DatabaseException.class,
-				() -> MIGRATION_MANAGER.runMigration(MIGRATION, MigrationAction.DOWN)
+			DatabaseException.class,
+			() -> MIGRATION_MANAGER.runMigration(MIGRATION, MigrationAction.DOWN)
 		);
 
 		repository = new ExampleRepository(MANAGER);
@@ -72,8 +72,8 @@ class DatabaseTest {
 		assertNull(repository.find(0));
 
 		assertThrowsExactly(
-				ModelNotFoundException.class,
-				() -> repository.findOrFail(0)
+			ModelNotFoundException.class,
+			() -> repository.findOrFail(0)
 		);
 	}
 
@@ -81,11 +81,11 @@ class DatabaseTest {
 	@Order(120)
 	void defaultRepoInsertFindUpdate() {
 		final Example inserted = new Example(
-				null,
-				"default_repo_str",
-				"default_repo_nullable",
-				"default_repo_dflt",
-				"default_repo_unique"
+			null,
+			"default_repo_str",
+			"default_repo_nullable",
+			"default_repo_dflt",
+			"default_repo_unique"
 		);
 
 		repository.insert(inserted);
@@ -106,16 +106,16 @@ class DatabaseTest {
 	@Order(125)
 	void defaultRepoDoubleInsert() {
 		final Example inserted = new Example(
-				null,
-				"default_repo_str",
-				"default_repo_nullable",
-				"default_repo_dflt",
-				"default_repo_unique"
+			null,
+			"default_repo_str",
+			"default_repo_nullable",
+			"default_repo_dflt",
+			"default_repo_unique"
 		);
 
 		assertThrowsExactly(
-				UniqueConstraintException.class,
-				() -> repository.insert(inserted)
+			UniqueConstraintException.class,
+			() -> repository.insert(inserted)
 		);
 	}
 

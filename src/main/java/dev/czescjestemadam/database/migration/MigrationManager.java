@@ -24,8 +24,8 @@ public class MigrationManager {
 
 	public MigrationManager(List<DatabaseMigration> migrations, DatabaseConnectionManager connectionManager) {
 		this.migrations = migrations.stream()
-				.sorted(Comparator.comparing(DatabaseMigration::getName))
-				.toList();
+			.sorted(Comparator.comparing(DatabaseMigration::getName))
+			.toList();
 		this.connectionManager = connectionManager;
 		this.repository = new MigrationRepository(connectionManager);
 	}
@@ -62,17 +62,17 @@ public class MigrationManager {
 
 		if (!migrationNames.isEmpty()) {
 			repository.insert(
-					migrationNames.stream()
-							.map(name -> new MigrationModel((int)batchId, name))
-							.toList()
+				migrationNames.stream()
+					.map(name -> new MigrationModel((int)batchId, name))
+					.toList()
 			);
 		}
 	}
 
 	public void rollbackMigrations() {
 		final MigrationModel latestMigration = repository.first(
-				repository.query()
-						.orderBy("batch_id", OrderType.DESC)
+			repository.query()
+				.orderBy("batch_id", OrderType.DESC)
 		);
 
 		if (latestMigration == null) {
@@ -80,14 +80,14 @@ public class MigrationManager {
 		}
 
 		final List<MigrationModel> batchMigrationModels = repository.select(
-				repository.query()
-						.whereEquals("batch_id", latestMigration.batchId)
-						.select()
+			repository.query()
+				.whereEquals("batch_id", latestMigration.batchId)
+				.select()
 		);
 
 		final List<String> batchMigrationNames = batchMigrationModels.stream()
-				.map(migration -> migration.name)
-				.toList();
+			.map(migration -> migration.name)
+			.toList();
 
 		LOGGER.info("Rolling back migration batch {} from {}", latestMigration.batchId, latestMigration.createdAt);
 		for (final DatabaseMigration batchMigration : migrations.reversed()) {
@@ -112,8 +112,8 @@ public class MigrationManager {
 			query.execute(connection);
 		} catch (final SQLException e) {
 			throw new DatabaseException(
-					String.format("Failed to run migration %s (%s)", migration, action),
-					e
+				String.format("Failed to run migration %s (%s)", migration, action),
+				e
 			);
 		}
 
@@ -123,9 +123,9 @@ public class MigrationManager {
 	@Override
 	public String toString() {
 		return "MigrationManager{" +
-				"migrations=" + migrations +
-				", connectionManager=" + connectionManager +
-				", repository=" + repository +
-				'}';
+			"migrations=" + migrations +
+			", connectionManager=" + connectionManager +
+			", repository=" + repository +
+			'}';
 	}
 }

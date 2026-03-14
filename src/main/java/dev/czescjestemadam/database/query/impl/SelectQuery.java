@@ -20,9 +20,9 @@ public class SelectQuery extends AbstractPreparedQuery<ResultSet> {
 	@Override
 	public String toString() {
 		return "SelectQuery{" +
-				"sql='" + sql + '\'' +
-				", parameters=" + parameters +
-				", returnGeneratedKeys=" + returnGeneratedKeys +
-				'}';
+			"sql='" + sql + '\'' +
+			", parameters=" + parameters +
+			", returnGeneratedKeys=" + returnGeneratedKeys +
+			'}';
 	}
 }

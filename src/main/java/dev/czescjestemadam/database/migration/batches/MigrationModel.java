@@ -39,11 +39,11 @@ public class MigrationModel extends Model<MigrationModel> {
 	@Override
 	public String toString() {
 		return "MigrationModel{" +
-				"id=" + id +
-				", batchId=" + batchId +
-				", name='" + name + '\'' +
-				", createdAt=" + createdAt +
-				", original=" + original +
-				'}';
+			"id=" + id +
+			", batchId=" + batchId +
+			", name='" + name + '\'' +
+			", createdAt=" + createdAt +
+			", original=" + original +
+			'}';
 	}
 }

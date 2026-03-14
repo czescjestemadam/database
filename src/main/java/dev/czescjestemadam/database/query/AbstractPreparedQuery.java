@@ -30,9 +30,9 @@ public abstract class AbstractPreparedQuery<T> implements Query<T> {
 	}
 
 	protected PreparedStatement prepareStatement(Connection connection) throws SQLException {
-		final PreparedStatement statement = returnGeneratedKeys ?
-				connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS) :
-				connection.prepareStatement(sql);
+		final PreparedStatement statement = returnGeneratedKeys
+			? connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+			: connection.prepareStatement(sql);
 
 		for (int i = 0; i < parameters.size(); i++) {
 			statement.setObject(i + 1, parameters.get(i));

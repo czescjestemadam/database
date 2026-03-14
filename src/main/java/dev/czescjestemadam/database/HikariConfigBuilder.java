@@ -9,12 +9,12 @@ public class HikariConfigBuilder {
 
 	public HikariConfigBuilder sqlite(Path path) {
 		return jdbcUrl("jdbc:sqlite:" + path)
-				.maxPoolSize(1);
+			.maxPoolSize(1);
 	}
 
 	public HikariConfigBuilder mysql(String host, int port, String db) {
 		return jdbcUrl(String.format("jdbc:mysql://%s:%d/%s", host, port, db))
-				.maxPoolSize(10);
+			.maxPoolSize(10);
 	}
 
 	public HikariConfigBuilder jdbcUrl(String jdbcUrl) {

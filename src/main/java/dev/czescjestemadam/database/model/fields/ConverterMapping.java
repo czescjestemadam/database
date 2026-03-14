@@ -30,7 +30,7 @@ public class ConverterMapping {
 	@Override
 	public String toString() {
 		return "ConverterMapping{" +
-				"converters=" + converters +
-				'}';
+			"converters=" + converters +
+			'}';
 	}
 }

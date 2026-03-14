@@ -21,7 +21,7 @@ public abstract class Model<T extends Model<T>> {
 	protected T original;
 
 	protected final ConverterMapping converterMapping = new ConverterMapping(Map.of(
-			Timestamp.class, new TimestampConverter()
+		Timestamp.class, new TimestampConverter()
 	));
 
 
@@ -39,9 +39,9 @@ public abstract class Model<T extends Model<T>> {
 
 	public static <T extends Model<?>> String getTableName(Class<T> modelClass) {
 		final Table table = modelClass.getAnnotation(Table.class);
-		return table != null ?
-				table.value() :
-				Str.plural(Str.snakeCase(modelClass.getSimpleName()));
+		return table != null
+			? table.value()
+			: Str.plural(Str.snakeCase(modelClass.getSimpleName()));
 	}
 
 	public T getOriginal() {
@@ -57,8 +57,8 @@ public abstract class Model<T extends Model<T>> {
 
 		for (final Field field : getClass().getDeclaredFields()) {
 			values.put(
-					getColumnName(field, Column.class, Column::value),
-					getFieldValue(field)
+				getColumnName(field, Column.class, Column::value),
+				getFieldValue(field)
 			);
 		}
 
@@ -93,14 +93,14 @@ public abstract class Model<T extends Model<T>> {
 
 				final FieldDataConverter converter = converterMapping.getConverter(field.getType());
 				field.set(
-						this,
-						converter != null ? converter.fromDatabase(columnValue) : columnValue
+					this,
+					converter != null ? converter.fromDatabase(columnValue) : columnValue
 				);
 			} catch (final IllegalAccessException e) {
 				throw new ModelException(String.format(
-						"Cannot set field %s value in model %s to collect values",
-						field,
-						this
+					"Cannot set field %s value in model %s to collect values",
+					field,
+					this
 				));
 			}
 		}
@@ -139,21 +139,21 @@ public abstract class Model<T extends Model<T>> {
 			return field.get(this);
 		} catch (final IllegalAccessException e) {
 			throw new ModelException(String.format(
-					"Cannot get field %s value in model %s to collect values",
-					field,
-					this
+				"Cannot get field %s value in model %s to collect values",
+				field,
+				this
 			));
 		}
 	}
 
 	private static <T extends Annotation> String getColumnName(
-			Field field,
-			Class<T> annotationClass,
-			Function<T, String> nameGetter
+		Field field,
+		Class<T> annotationClass,
+		Function<T, String> nameGetter
 	) {
 		final T annotation = field.getAnnotation(annotationClass);
-		return annotation != null ?
-				nameGetter.apply(annotation) :
-				Str.snakeCase(field.getName());
+		return annotation != null
+			? nameGetter.apply(annotation)
+			: Str.snakeCase(field.getName());
 	}
 }

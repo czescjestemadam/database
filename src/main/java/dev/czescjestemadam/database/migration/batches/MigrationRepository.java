@@ -20,17 +20,18 @@ public class MigrationRepository extends AbstractRepository<MigrationModel> {
 			final MigrationBuilder migrationBuilder = new MigrationBuilder(manager.getSqlDialect());
 
 			migrationBuilder.createTableIfNotExists(
-					modelClass, tableBuilder -> {
-						tableBuilder.id();
-						tableBuilder.integer("batch_id");
-						tableBuilder.string("name")
-								.unique();
-						tableBuilder.timestamp("created_at");
-					}
+				modelClass,
+				tableBuilder -> {
+					tableBuilder.id();
+					tableBuilder.integer("batch_id");
+					tableBuilder.string("name")
+						.unique();
+					tableBuilder.timestamp("created_at");
+				}
 			);
 
 			migrationBuilder.build()
-					.execute(connection);
+				.execute(connection);
 		});
 	}
 }

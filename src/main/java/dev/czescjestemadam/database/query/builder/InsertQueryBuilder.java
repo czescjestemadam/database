@@ -40,15 +40,15 @@ public class InsertQueryBuilder {
 
 		if (!columns.isEmpty() && columns.size() != values.size()) {
 			throw new IllegalArgumentException(String.format(
-					"Size of values (%d) does not match size of columns (%d)",
-					values.size(),
-					columns.size()
+				"Size of values (%d) does not match size of columns (%d)",
+				values.size(),
+				columns.size()
 			));
 		} else if (!this.valuesList.isEmpty() && this.valuesList.getFirst().size() != values.size()) {
 			throw new IllegalArgumentException(String.format(
-					"Size of supplied values (%d) does not match size of other values (%d)",
-					values.size(),
-					this.valuesList.getFirst().size()
+				"Size of supplied values (%d) does not match size of other values (%d)",
+				values.size(),
+				this.valuesList.getFirst().size()
 			));
 		}
 
@@ -69,12 +69,12 @@ public class InsertQueryBuilder {
 		final List<Object> parameters = new ArrayList<>();
 
 		sql.append("INSERT INTO ")
-				.append(table);
+			.append(table);
 
 		if (!columns.isEmpty()) {
 			sql.append(" (")
-					.append(String.join(", ", columns))
-					.append(')');
+				.append(String.join(", ", columns))
+				.append(')');
 		}
 
 		sql.append(" VALUES ");

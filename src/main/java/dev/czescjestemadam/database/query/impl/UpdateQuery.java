@@ -37,10 +37,10 @@ public class UpdateQuery extends AbstractPreparedQuery<Integer> {
 	@Override
 	public String toString() {
 		return "UpdateQuery{" +
-				"preparedStatement=" + preparedStatement +
-				", sql='" + sql + '\'' +
-				", parameters=" + parameters +
-				", returnGeneratedKeys=" + returnGeneratedKeys +
-				'}';
+			"preparedStatement=" + preparedStatement +
+			", sql='" + sql + '\'' +
+			", parameters=" + parameters +
+			", returnGeneratedKeys=" + returnGeneratedKeys +
+			'}';
 	}
 }

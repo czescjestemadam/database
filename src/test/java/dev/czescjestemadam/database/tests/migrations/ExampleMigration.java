@@ -7,20 +7,23 @@ import dev.czescjestemadam.database.tests.models.Example;
 public class ExampleMigration implements DatabaseMigration {
 	@Override
 	public void up(MigrationBuilder builder) {
-		builder.createTable(Example.class, table -> {
-			table.id();
+		builder.createTable(
+			Example.class,
+			table -> {
+				table.id();
 
-			table.string("str");
+				table.string("str");
 
-			table.string("str_nullable")
+				table.string("str_nullable")
 					.nullable();
 
-			table.string("str_dflt")
+				table.string("str_dflt")
 					.withDefault("dflt_str");
 
-			table.string("str_unique")
+				table.string("str_unique")
 					.unique();
-		});
+			}
+		);
 	}
 
 	@Override
