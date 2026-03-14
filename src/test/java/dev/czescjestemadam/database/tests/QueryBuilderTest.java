@@ -10,6 +10,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 class QueryBuilderTest {
 	@Test
@@ -87,6 +88,103 @@ class QueryBuilderTest {
 		assertArrayEquals(
 			new Object[]{ "a", "b", "c", "d", 1, 2, 3, 4 },
 			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void limitBuilder() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereEquals("str", "asd")
+			.limit(10)
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE str = ? LIMIT 10;",
+			query.getSql()
+		);
+	}
+
+	@Test
+	void limitInvalid() {
+		assertThrowsExactly(
+			IllegalArgumentException.class,
+			() -> new QueryBuilder("examples", Set.of()).limit(0)
+		);
+	}
+
+	@Test
+	void offsetBuilder() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.whereEquals("str", "asd")
+			.limit(10)
+			.offset(20)
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE str = ? LIMIT 10 OFFSET 20;",
+			query.getSql()
+		);
+	}
+
+	@Test
+	void offsetOnly() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.offset(100)
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples;",
+			query.getSql()
+		);
+	}
+
+	@Test
+	void offsetInvalid() {
+		assertThrowsExactly(
+			IllegalArgumentException.class,
+			() -> new QueryBuilder("examples", Set.of()).offset(-1)
+		);
+	}
+
+	@Test
+	void pagination() {
+		final SelectQuery query = new QueryBuilder("examples", Set.of())
+			.orderBy("created_at", dev.czescjestemadam.database.query.OrderType.DESC)
+			.limit(25)
+			.offset(50)
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples ORDER BY created_at DESC LIMIT 25 OFFSET 50;",
+			query.getSql()
+		);
+	}
+
+	@Test
+	void offsetWithUpdate() {
+		final UpdateQuery query = new QueryBuilder("examples", Set.of())
+			.whereEquals("str", "asd")
+			.limit(1)
+			.offset(5)
+			.update("str", "updated");
+
+		assertEquals(
+			"UPDATE examples SET str = ? WHERE str = ? LIMIT 1 OFFSET 5",
+			query.getSql()
+		);
+	}
+
+	@Test
+	void offsetWithDelete() {
+		final UpdateQuery query = new QueryBuilder("examples", Set.of())
+			.whereEquals("str", "old")
+			.limit(100)
+			.offset(500)
+			.delete();
+
+		assertEquals(
+			"DELETE FROM examples WHERE str = ? LIMIT 100 OFFSET 500",
+			query.getSql()
 		);
 	}
 }

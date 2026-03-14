@@ -26,6 +26,7 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 	private final List<QueryOrder> orders = new ArrayList<>();
 
 	private int limit = -1;
+	private int offset = -1;
 
 	public QueryBuilder(String table, Set<String> columns) {
 		this.table = table;
@@ -58,6 +59,20 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		return this;
 	}
 
+	public QueryBuilder offset(int offset) {
+		if (offset < 0) {
+			throw new IllegalArgumentException("Offset cannot be less than 0");
+		}
+
+		this.offset = offset;
+		return this;
+	}
+
+	public QueryBuilder withoutOffset() {
+		this.offset = -1;
+		return this;
+	}
+
 
 	public SelectQuery select() {
 		final StringBuilder sql = new StringBuilder();
@@ -75,10 +90,7 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 				.append(buildOrders());
 		}
 
-		if (limit > 0) {
-			sql.append(" LIMIT ")
-				.append(limit);
-		}
+		appendLimitOffset(sql);
 
 		sql.append(';');
 
@@ -144,10 +156,7 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 				.append(buildOrders());
 		}
 
-		if (limit > 0) {
-			sql.append(" LIMIT ")
-				.append(limit);
-		}
+		appendLimitOffset(sql);
 
 		return new UpdateQuery(sql.toString(), parameters, false);
 	}
@@ -166,10 +175,7 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 				.append(buildOrders());
 		}
 
-		if (limit > 0) {
-			sql.append(" LIMIT ")
-				.append(limit);
-		}
+		appendLimitOffset(sql);
 
 		return new UpdateQuery(sql.toString(), parameters, false);
 	}
@@ -186,6 +192,18 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 
 		sql.append(" WHERE ");
 		buildConditions(conditions, sql, parameters);
+	}
+
+	private void appendLimitOffset(StringBuilder sql) {
+		if (limit > 0) {
+			sql.append(" LIMIT ")
+				.append(limit);
+
+			if (offset >= 0) {
+				sql.append(" OFFSET ")
+					.append(offset);
+			}
+		}
 	}
 
 	private static void buildConditions(
