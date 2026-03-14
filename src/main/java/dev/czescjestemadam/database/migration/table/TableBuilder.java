@@ -149,6 +149,11 @@ public class TableBuilder {
 		return column(ColumnType.TIMESTAMP, name);
 	}
 
+	public void timestamps() {
+		timestamp("created_at");
+		timestamp("updated_at");
+	}
+
 	public ColumnBuilder time(String name) {
 		return column(ColumnType.TIME, name);
 	}
