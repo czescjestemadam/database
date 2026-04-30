@@ -12,6 +12,7 @@ import dev.czescjestemadam.database.query.builder.condition.compare.QueryNullCom
 import dev.czescjestemadam.database.query.builder.condition.compare.QueryValueCompareCondition;
 import dev.czescjestemadam.database.query.impl.SelectQuery;
 import dev.czescjestemadam.database.query.impl.UpdateQuery;
+import org.jetbrains.annotations.Range;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		return this;
 	}
 
-	public QueryBuilder limit(int limit) {
+	public QueryBuilder limit(@Range(from = 1, to = Integer.MAX_VALUE) int limit) {
 		if (limit < 1) {
 			throw new IllegalArgumentException("Limit cannot be less than 1");
 		}
@@ -57,7 +58,7 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		return this;
 	}
 
-	public QueryBuilder offset(int offset) {
+	public QueryBuilder offset(@Range(from = 0, to = Integer.MAX_VALUE) int offset) {
 		if (offset < 0) {
 			throw new IllegalArgumentException("Offset cannot be less than 0");
 		}
