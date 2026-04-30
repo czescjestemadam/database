@@ -2,6 +2,7 @@ package dev.czescjestemadam.database.query.builder;
 
 
 import dev.czescjestemadam.database.exceptions.query.QueryException;
+import dev.czescjestemadam.database.model.Model;
 import dev.czescjestemadam.database.query.OrderType;
 import dev.czescjestemadam.database.query.builder.condition.QueryCondition;
 import dev.czescjestemadam.database.query.builder.condition.QueryConditionBuilder;
@@ -12,6 +13,8 @@ import dev.czescjestemadam.database.query.builder.condition.compare.QueryNullCom
 import dev.czescjestemadam.database.query.builder.condition.compare.QueryValueCompareCondition;
 import dev.czescjestemadam.database.query.impl.SelectQuery;
 import dev.czescjestemadam.database.query.impl.UpdateQuery;
+import dev.czescjestemadam.database.repository.Repository;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.util.*;
@@ -27,9 +30,17 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 	private int limit = -1;
 	private int offset = -1;
 
+	@Nullable
+	private Repository<?> repository;
+
 	public QueryBuilder(String table, Set<String> columns) {
+		this(table, columns, null);
+	}
+
+	public QueryBuilder(String table, Set<String> columns, @Nullable Repository<?> repository) {
 		this.table = table;
 		this.columns = columns;
+		this.repository = repository;
 	}
 
 	@Override
@@ -179,6 +190,28 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		return new UpdateQuery(sql.toString(), parameters, false);
 	}
 
+	public <T extends Model<T>> T first() {
+		if (repository == null) {
+			throw new QueryException(
+				"Cannot call first() on QueryBuilder without a repository. Create QueryBuilder via repository.query()"
+			);
+		}
+		@SuppressWarnings("unchecked") final Repository<T> repo = (Repository<T>)repository;
+
+		return repo.first(this);
+	}
+
+	public <T extends Model<T>> T firstOrFail() {
+		if (repository == null) {
+			throw new QueryException(
+				"Cannot call firstOrFail() on QueryBuilder without a repository. " +
+				"Create QueryBuilder via repository.query()"
+			);
+		}
+		@SuppressWarnings("unchecked") final Repository<T> repo = (Repository<T>)repository;
+
+		return repo.firstOrFail(this);
+	}
 
 	private String buildColumns() {
 		return columns.isEmpty() ? "*" : String.join(", ", columns);

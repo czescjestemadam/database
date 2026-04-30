@@ -205,7 +205,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@Override
 	public QueryBuilder query(String... columns) {
-		return new QueryBuilder(getTableName(), Set.of(columns));
+		return new QueryBuilder(getTableName(), Set.of(columns), this);
 	}
 
 	@Override
