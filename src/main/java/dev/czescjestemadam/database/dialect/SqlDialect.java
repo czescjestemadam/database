@@ -1,19 +1,27 @@
 package dev.czescjestemadam.database.dialect;
 
+import dev.czescjestemadam.database.migration.column.ColumnType;
+
 public enum SqlDialect {
-	SQLITE("AUTOINCREMENT"),
-	MYSQL("AUTO_INCREMENT"),
+	SQLITE("AUTOINCREMENT", ColumnType.INTEGER),
+	MYSQL("AUTO_INCREMENT", ColumnType.BIGINT),
 
 	;
 
 	private final String autoIncrement;
+	private final ColumnType idColumnType;
 
-	SqlDialect(String autoIncrement) {
+	SqlDialect(String autoIncrement, ColumnType idColumnType) {
 		this.autoIncrement = autoIncrement;
+		this.idColumnType = idColumnType;
 	}
 
 	public String getAutoIncrement() {
 		return autoIncrement;
+	}
+
+	public ColumnType getIdColumnType() {
+		return idColumnType;
 	}
 
 	public static SqlDialect detect(String jdbcUrl) {

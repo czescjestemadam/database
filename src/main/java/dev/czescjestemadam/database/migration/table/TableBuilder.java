@@ -24,7 +24,7 @@ public class TableBuilder {
 	// numeric
 
 	public void id() {
-		column(sqlDialect == SqlDialect.SQLITE ? ColumnType.INTEGER : ColumnType.BIGINT, "id")
+		column(sqlDialect.getIdColumnType(), "id")
 			.primaryKey()
 			.autoIncrement();
 	}
