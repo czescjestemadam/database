@@ -4,6 +4,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.czescjestemadam.database.dialect.SqlDialect;
 import dev.czescjestemadam.database.exceptions.DatabaseException;
+import dev.czescjestemadam.database.transaction.TransactionContext;
+import dev.czescjestemadam.database.transaction.TransactionExecutor;
 import dev.czescjestemadam.database.utils.ExceptionMapper;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,14 +17,25 @@ public class DatabaseConnectionManager {
 	private final HikariConfig config;
 	private final SqlDialect sqlDialect;
 	private final DataSource dataSource;
+	private final TransactionExecutor transactionExecutor;
 
 	public DatabaseConnectionManager(HikariConfig config) {
 		this.config = config;
 		this.sqlDialect = SqlDialect.detect(config.getJdbcUrl());
 		this.dataSource = new HikariDataSource(config);
+		this.transactionExecutor = new TransactionExecutor(dataSource);
 	}
 
 	public <R> R connected(ConnectedFunction<R> func) {
+		if (TransactionContext.hasActiveTransaction()) {
+			try {
+				return func.apply(TransactionContext.getConnection());
+			} catch (final SQLException e) {
+				throw ExceptionMapper.create(e)
+					.orElse(new DatabaseException("Error executing in transaction", e));
+			}
+		}
+
 		try (final Connection connection = getConnection()) {
 			return func.apply(connection);
 		} catch (final SQLException e) {
@@ -55,13 +68,25 @@ public class DatabaseConnectionManager {
 		return dataSource;
 	}
 
+	public <R> R transaction(TransactionExecutor.TransactionFunction<R> function) {
+		return transactionExecutor.execute(function);
+	}
+
+	public void transaction(TransactionExecutor.TransactionConsumer consumer) {
+		transactionExecutor.execute(consumer);
+	}
+
+	public TransactionExecutor getTransactionExecutor() {
+		return transactionExecutor;
+	}
+
 	@Override
 	public String toString() {
 		return "DatabaseConnectionManager{" +
-			"config=" + config +
-			", sqlDialect=" + sqlDialect +
-			", dataSource=" + dataSource +
-			'}';
+		       "config=" + config +
+		       ", sqlDialect=" + sqlDialect +
+		       ", dataSource=" + dataSource +
+		       '}';
 	}
 
 	@FunctionalInterface
