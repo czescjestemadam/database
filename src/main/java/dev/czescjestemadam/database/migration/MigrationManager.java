@@ -48,7 +48,10 @@ public class MigrationManager {
 			}
 		}
 
-		final long batchId = repository.count();
+		final MigrationModel latestRun = repository.first(
+			repository.query().orderBy("batch_id", OrderType.DESC)
+		);
+		final long batchId = latestRun == null || latestRun.batchId == null ? 1 : latestRun.batchId + 1;
 		final List<String> migrationNames = new ArrayList<>();
 
 		for (final DatabaseMigration migration : migrations) {
@@ -96,20 +99,19 @@ public class MigrationManager {
 			}
 		}
 
-		// TODO: repo batch delete method
-		for (final MigrationModel batchMigrationModel : batchMigrationModels) {
-			repository.delete(batchMigrationModel);
-		}
+		repository.delete(repository.query().whereIn("name", batchMigrationNames));
 	}
 
 	public void runMigration(DatabaseMigration migration, MigrationAction action) {
 		final MigrationBuilder builder = new MigrationBuilder(connectionManager.getSqlDialect());
 		action.run(migration, builder);
 
-		final Query<?> query = builder.build();
+		final List<Query<?>> queries = builder.build();
 
 		try (final Connection connection = connectionManager.getConnection()) {
-			query.execute(connection);
+			for (final Query<?> query : queries) {
+				query.execute(connection);
+			}
 		} catch (final SQLException e) {
 			throw new DatabaseException(
 				String.format("Failed to run migration %s (%s)", migration, action),
@@ -123,9 +125,9 @@ public class MigrationManager {
 	@Override
 	public String toString() {
 		return "MigrationManager{" +
-			"migrations=" + migrations +
-			", connectionManager=" + connectionManager +
-			", repository=" + repository +
-			'}';
+		       "migrations=" + migrations +
+		       ", connectionManager=" + connectionManager +
+		       ", repository=" + repository +
+		       '}';
 	}
 }

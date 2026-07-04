@@ -1,5 +1,7 @@
 package dev.czescjestemadam.database.migration.column;
 
+import dev.czescjestemadam.database.dialect.SqlDialect;
+
 public class Column {
 	private final ColumnType type;
 	private final int size;
@@ -78,18 +80,56 @@ public class Column {
 		this.defaultValue = defaultValue;
 	}
 
+	public String toSql(SqlDialect dialect) {
+		final StringBuilder sql = new StringBuilder();
+
+		sql.append(name)
+			.append(' ')
+			.append(type);
+
+		if (size > 0) {
+			sql.append('(').append(size).append(')');
+		}
+
+		if (unsigned && dialect == SqlDialect.MYSQL) {
+			sql.append(" UNSIGNED");
+		}
+
+		if (!nullable) {
+			sql.append(" NOT NULL");
+		}
+
+		if (defaultValue != null) {
+			sql.append(" DEFAULT ").append(defaultValue);
+		}
+
+		if (unique) {
+			sql.append(" UNIQUE");
+		}
+
+		if (primaryKey) {
+			sql.append(" PRIMARY KEY");
+		}
+
+		if (autoIncrement) {
+			sql.append(' ').append(dialect.getAutoIncrement());
+		}
+
+		return sql.toString();
+	}
+
 	@Override
 	public String toString() {
 		return "Column{" +
-			"type=" + type +
-			", size=" + size +
-			", name='" + name + '\'' +
-			", primaryKey=" + primaryKey +
-			", autoIncrement=" + autoIncrement +
-			", unique=" + unique +
-			", nullable=" + nullable +
-			", unsigned=" + unsigned +
-			", defaultValue=" + defaultValue +
-			'}';
+		       "type=" + type +
+		       ", size=" + size +
+		       ", name='" + name + '\'' +
+		       ", primaryKey=" + primaryKey +
+		       ", autoIncrement=" + autoIncrement +
+		       ", unique=" + unique +
+		       ", nullable=" + nullable +
+		       ", unsigned=" + unsigned +
+		       ", defaultValue=" + defaultValue +
+		       '}';
 	}
 }

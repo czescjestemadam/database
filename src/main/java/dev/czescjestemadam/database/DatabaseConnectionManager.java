@@ -7,7 +7,6 @@ import dev.czescjestemadam.database.exceptions.DatabaseException;
 import dev.czescjestemadam.database.transaction.TransactionContext;
 import dev.czescjestemadam.database.transaction.TransactionExecutor;
 import dev.czescjestemadam.database.utils.ExceptionMapper;
-import org.jetbrains.annotations.Nullable;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -31,17 +30,20 @@ public class DatabaseConnectionManager {
 			try {
 				return func.apply(TransactionContext.getConnection());
 			} catch (final SQLException e) {
-				throw ExceptionMapper.create(e)
-					.orElse(new DatabaseException("Error executing in transaction", e));
+				throw mapException(e, "Error executing in transaction");
 			}
 		}
 
 		try (final Connection connection = getConnection()) {
 			return func.apply(connection);
 		} catch (final SQLException e) {
-			throw ExceptionMapper.create(e)
-				.orElse(new DatabaseException("Error getting connection", e));
+			throw mapException(e, "Error getting connection");
 		}
+	}
+
+	private static RuntimeException mapException(SQLException e, String fallbackMessage) {
+		return ExceptionMapper.create(e)
+			.orElse(new DatabaseException(fallbackMessage, e));
 	}
 
 	public void connected(ConnectedConsumer func) {
@@ -63,7 +65,6 @@ public class DatabaseConnectionManager {
 		return sqlDialect;
 	}
 
-	@Nullable
 	public DataSource getDataSource() {
 		return dataSource;
 	}

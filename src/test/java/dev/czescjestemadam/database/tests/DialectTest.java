@@ -39,13 +39,13 @@ class DialectTest {
 			}
 		);
 
-		final Query<?> query = builder.build();
+		final Query<?> query = builder.build().getFirst();
 		final String sql = ((AbstractPreparedQuery<?>)query).getSql();
 
 		assertEquals(
 			"CREATE TABLE IF NOT EXISTS test (age INTEGER UNSIGNED NOT NULL, " +
-				"user_id BIGINT UNSIGNED NOT NULL, " +
-				"status TINYINT NOT NULL);",
+			"user_id BIGINT UNSIGNED NOT NULL, " +
+			"status TINYINT NOT NULL);",
 			sql
 		);
 	}
@@ -61,13 +61,13 @@ class DialectTest {
 			}
 		);
 
-		final Query<?> query = builder.build();
+		final Query<?> query = builder.build().getFirst();
 		final String sql = ((AbstractPreparedQuery<?>)query).getSql();
 
 		assertEquals(
 			"CREATE TABLE IF NOT EXISTS test (age INTEGER NOT NULL, " +
-				"user_id BIGINT NOT NULL, " +
-				"status TINYINT NOT NULL);",
+			"user_id BIGINT NOT NULL, " +
+			"status TINYINT NOT NULL);",
 			sql
 		);
 	}

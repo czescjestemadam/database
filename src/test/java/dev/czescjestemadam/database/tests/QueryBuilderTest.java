@@ -7,14 +7,13 @@ import dev.czescjestemadam.database.query.impl.UpdateQuery;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class QueryBuilderTest {
 	@Test
 	void selectBuilder() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereEquals("str", "asd")
 			.whereNotNull("str_nullable")
 			.orWhereEquals("str_dflt", "not_dflt")
@@ -34,7 +33,7 @@ class QueryBuilderTest {
 
 	@Test
 	void updateBuilder() {
-		final UpdateQuery query = new QueryBuilder("examples", Set.of())
+		final UpdateQuery query = new QueryBuilder("examples", List.of())
 			.whereEquals("str", "asd")
 			.whereNull("str_nullable")
 			.update(
@@ -55,7 +54,7 @@ class QueryBuilderTest {
 
 	@Test
 	void deleteBuilder() {
-		final UpdateQuery query = new QueryBuilder("examples", Set.of())
+		final UpdateQuery query = new QueryBuilder("examples", List.of())
 			.whereEquals("str", "asd")
 			.whereEquals("str_unique", "unique")
 			.delete();
@@ -92,7 +91,7 @@ class QueryBuilderTest {
 
 	@Test
 	void limitBuilder() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereEquals("str", "asd")
 			.limit(10)
 			.select();
@@ -107,13 +106,13 @@ class QueryBuilderTest {
 	void limitInvalid() {
 		assertThrowsExactly(
 			IllegalArgumentException.class,
-			() -> new QueryBuilder("examples", Set.of()).limit(0)
+			() -> new QueryBuilder("examples", List.of()).limit(0)
 		);
 	}
 
 	@Test
 	void offsetBuilder() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereEquals("str", "asd")
 			.limit(10)
 			.offset(20)
@@ -127,7 +126,7 @@ class QueryBuilderTest {
 
 	@Test
 	void offsetOnly() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.offset(100)
 			.select();
 
@@ -141,13 +140,13 @@ class QueryBuilderTest {
 	void offsetInvalid() {
 		assertThrowsExactly(
 			IllegalArgumentException.class,
-			() -> new QueryBuilder("examples", Set.of()).offset(-1)
+			() -> new QueryBuilder("examples", List.of()).offset(-1)
 		);
 	}
 
 	@Test
 	void pagination() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.orderBy("created_at", dev.czescjestemadam.database.query.OrderType.DESC)
 			.limit(25)
 			.offset(50)
@@ -161,7 +160,7 @@ class QueryBuilderTest {
 
 	@Test
 	void offsetWithUpdate() {
-		final UpdateQuery query = new QueryBuilder("examples", Set.of())
+		final UpdateQuery query = new QueryBuilder("examples", List.of())
 			.whereEquals("str", "asd")
 			.limit(1)
 			.offset(5)
@@ -175,7 +174,7 @@ class QueryBuilderTest {
 
 	@Test
 	void offsetWithDelete() {
-		final UpdateQuery query = new QueryBuilder("examples", Set.of())
+		final UpdateQuery query = new QueryBuilder("examples", List.of())
 			.whereEquals("str", "old")
 			.limit(100)
 			.offset(500)
@@ -189,7 +188,7 @@ class QueryBuilderTest {
 
 	@Test
 	void whereIn() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereIn("status", "active", "pending", "archived")
 			.select();
 
@@ -206,7 +205,7 @@ class QueryBuilderTest {
 
 	@Test
 	void whereInList() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereIn("id", List.of(1, 2, 3, 4, 5))
 			.select();
 
@@ -223,7 +222,7 @@ class QueryBuilderTest {
 
 	@Test
 	void whereNotIn() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereNotIn("status", "deleted", "banned")
 			.select();
 
@@ -240,7 +239,7 @@ class QueryBuilderTest {
 
 	@Test
 	void orWhereIn() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereEquals("status", "active")
 			.orWhereIn("id", 1, 2, 3)
 			.select();
@@ -258,7 +257,7 @@ class QueryBuilderTest {
 
 	@Test
 	void orWhereNotIn() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereEquals("type", "user")
 			.orWhereNotIn("status", "deleted", "banned")
 			.select();
@@ -276,7 +275,7 @@ class QueryBuilderTest {
 
 	@Test
 	void inWithLimit() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereIn("category", List.of("news", "sports"))
 			.limit(10)
 			.offset(5)
@@ -290,7 +289,7 @@ class QueryBuilderTest {
 
 	@Test
 	void inWithDelete() {
-		final UpdateQuery query = new QueryBuilder("examples", Set.of())
+		final UpdateQuery query = new QueryBuilder("examples", List.of())
 			.whereNotIn("id", 1, 2, 3)
 			.delete();
 
@@ -302,12 +301,12 @@ class QueryBuilderTest {
 
 	@Test
 	void emptyIn() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereIn("status", List.of())
 			.select();
 
 		assertEquals(
-			"SELECT * FROM examples WHERE status IN ();",
+			"SELECT * FROM examples WHERE 0 = 1;",
 			query.getSql()
 		);
 
@@ -318,8 +317,20 @@ class QueryBuilderTest {
 	}
 
 	@Test
+	void emptyNotIn() {
+		final SelectQuery query = new QueryBuilder("examples", List.of())
+			.whereNotIn("status", List.of())
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE 1 = 1;",
+			query.getSql()
+		);
+	}
+
+	@Test
 	void multipleInConditions() {
-		final SelectQuery query = new QueryBuilder("examples", Set.of())
+		final SelectQuery query = new QueryBuilder("examples", List.of())
 			.whereIn("status", "active", "pending")
 			.whereNotIn("type", "system", "temp")
 			.select();
@@ -331,6 +342,86 @@ class QueryBuilderTest {
 
 		assertArrayEquals(
 			new Object[]{ "active", "pending", "system", "temp" },
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void whereGroup() {
+		final SelectQuery query = new QueryBuilder("examples", List.of())
+			.where(group -> group
+				.whereEquals("b", 2)
+				.orWhereEquals("c", 3))
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE (b = ? OR c = ?);",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ 2, 3 },
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void whereGroupCombinedWithOuterCondition() {
+		final SelectQuery query = new QueryBuilder("examples", List.of())
+			.whereEquals("a", 1)
+			.where(group -> group
+				.whereEquals("b", 2)
+				.orWhereEquals("c", 3))
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE a = ? AND (b = ? OR c = ?);",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ 1, 2, 3 },
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void orWhereGroup() {
+		final SelectQuery query = new QueryBuilder("examples", List.of())
+			.whereEquals("a", 1)
+			.orWhere(group -> group
+				.whereEquals("b", 2)
+				.whereNotNull("c"))
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE a = ? OR (b = ? AND c IS NOT NULL);",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ 1, 2 },
+			query.getParameters().toArray()
+		);
+	}
+
+	@Test
+	void nestedWhereGroups() {
+		final SelectQuery query = new QueryBuilder("examples", List.of())
+			.where(outer -> outer
+				.whereEquals("a", 1)
+				.where(inner -> inner
+					.whereEquals("b", 2)
+					.orWhereEquals("c", 3)))
+			.select();
+
+		assertEquals(
+			"SELECT * FROM examples WHERE (a = ? AND (b = ? OR c = ?));",
+			query.getSql()
+		);
+
+		assertArrayEquals(
+			new Object[]{ 1, 2, 3 },
 			query.getParameters().toArray()
 		);
 	}

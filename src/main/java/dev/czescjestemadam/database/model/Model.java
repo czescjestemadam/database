@@ -28,7 +28,21 @@ public abstract class Model<T extends Model<T>> {
 	));
 
 
-	public abstract T copy();
+	@SuppressWarnings("unchecked")
+	public T copy() {
+		try {
+			final T copy = (T)getClass().getDeclaredConstructor().newInstance();
+
+			for (final Field field : getClass().getDeclaredFields()) {
+				field.setAccessible(true);
+				field.set(copy, field.get(this));
+			}
+
+			return copy;
+		} catch (final ReflectiveOperationException e) {
+			throw new ModelException(String.format("Cannot copy model %s", this), e);
+		}
+	}
 
 	public abstract BigInteger getId();
 
@@ -52,7 +66,7 @@ public abstract class Model<T extends Model<T>> {
 	}
 
 	public boolean isDirty() {
-		return !equals(getOriginal());
+		return original == null || !getDirtyValues().isEmpty();
 	}
 
 	public Map<String, Object> getValues() {
@@ -75,6 +89,10 @@ public abstract class Model<T extends Model<T>> {
 
 	public void setValues(Map<String, Object> values) {
 		setValues(values, false);
+	}
+
+	public void fill(Map<String, Object> values) {
+		setValues(values);
 	}
 
 	public void setValues(Map<String, Object> values, boolean copyToOriginal) {
@@ -117,23 +135,22 @@ public abstract class Model<T extends Model<T>> {
 	}
 
 	public Map<String, Object> getDirtyValues() {
-		if (!isDirty()) {
-			return Map.of();
+		final Map<String, Object> current = getValues();
+
+		if (original == null) {
+			return current;
 		}
 
-		final Map<String, Object> values = getValues();
+		final Map<String, Object> originalValues = original.getValues();
+		final Map<String, Object> dirty = new LinkedHashMap<>();
 
-		if (getOriginal() == null) {
-			return values;
-		}
-
-		getOriginal().getValues().forEach((key, originalValue) -> {
-			if (Objects.equals(originalValue, values.get(key))) {
-				values.remove(key);
+		current.forEach((column, value) -> {
+			if (!Objects.equals(originalValues.get(column), value)) {
+				dirty.put(column, value);
 			}
 		});
 
-		return values;
+		return dirty;
 	}
 
 

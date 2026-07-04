@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +65,8 @@ public interface Repository<T extends Model<T>> {
 		return model.getId() != null && delete(model.getId());
 	}
 
+	int delete(QueryBuilder queryBuilder);
+
 	T insert(T model);
 
 	T insert(Map<String, Object> values);
@@ -74,7 +77,73 @@ public interface Repository<T extends Model<T>> {
 
 	long count();
 
+	long count(QueryBuilder queryBuilder);
+
 	List<T> select(SelectQuery selectQuery);
+
+	default List<T> all() {
+		return select(query().select());
+	}
+
+	default T save(T model) {
+		if (model.getId() == null) {
+			return insert(model);
+		}
+
+		update(model);
+		return model;
+	}
+
+	default T create(Map<String, Object> values) {
+		return insert(values);
+	}
+
+	default boolean exists(QueryBuilder queryBuilder) {
+		return first(queryBuilder) != null;
+	}
+
+	default T firstOrCreate(Map<String, Object> attributes, Map<String, Object> values) {
+		final T existing = firstByAttributes(attributes);
+
+		if (existing != null) {
+			return existing;
+		}
+
+		final Map<String, Object> all = new LinkedHashMap<>(attributes);
+		all.putAll(values);
+		return insert(all);
+	}
+
+	default T firstOrCreate(Map<String, Object> attributes) {
+		return firstOrCreate(attributes, Map.of());
+	}
+
+	default T updateOrCreate(Map<String, Object> attributes, Map<String, Object> values) {
+		final T existing = firstByAttributes(attributes);
+
+		if (existing == null) {
+			final Map<String, Object> all = new LinkedHashMap<>(attributes);
+			all.putAll(values);
+			return insert(all);
+		}
+
+		existing.setValues(values);
+		update(existing);
+		return existing;
+	}
+
+	private QueryBuilder queryByAttributes(Map<String, Object> attributes) {
+		final QueryBuilder queryBuilder = query();
+
+		attributes.forEach(queryBuilder::whereEquals);
+
+		return queryBuilder;
+	}
+
+	@Nullable
+	private T firstByAttributes(Map<String, Object> attributes) {
+		return first(queryByAttributes(attributes));
+	}
 
 	QueryBuilder query(String... columns);
 

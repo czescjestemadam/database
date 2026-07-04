@@ -1,7 +1,7 @@
 package dev.czescjestemadam.database.migration;
 
 import dev.czescjestemadam.database.dialect.SqlDialect;
-import dev.czescjestemadam.database.migration.column.Column;
+import dev.czescjestemadam.database.migration.table.AlterTableBuilder;
 import dev.czescjestemadam.database.migration.table.Table;
 import dev.czescjestemadam.database.migration.table.TableBuilder;
 import dev.czescjestemadam.database.model.Model;
@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 public class MigrationBuilder {
 	private final List<TableBuilder> tableBuilders = new ArrayList<>();
+	private final List<AlterTableBuilder> alterTables = new ArrayList<>();
 	private final Set<String> tablesToDrop = new HashSet<>();
 	private final SqlDialect sqlDialect;
 
@@ -41,14 +42,15 @@ public class MigrationBuilder {
 		table(name, TableQueryAction.CREATE, builder, true);
 	}
 
-	// TODO
-//	public void table(Class<? extends Model> modelClass, Consumer<TableBuilder> builder) {
-//		table(Model.getTableName(modelClass), builder, TableQueryAction.ALTER);
-//	}
-//
-//	public void table(String name, Consumer<TableBuilder> builder) {
-//		table(name, builder, TableQueryAction.ALTER);
-//	}
+	public void table(String name, Consumer<AlterTableBuilder> builder) {
+		final AlterTableBuilder alterTable = new AlterTableBuilder(name, sqlDialect);
+		builder.accept(alterTable);
+		alterTables.add(alterTable);
+	}
+
+	public void table(Class<? extends Model<?>> modelClass, Consumer<AlterTableBuilder> builder) {
+		table(Model.getTableName(modelClass), builder);
+	}
 
 	public void dropTable(Class<? extends Model<?>> modelClass) {
 		dropTable(Model.getTableName(modelClass));
@@ -59,34 +61,22 @@ public class MigrationBuilder {
 	}
 
 
-	public Query<?> build() {
-		final StringBuilder sql = new StringBuilder();
+	public List<Query<?>> build() {
+		final List<Query<?>> queries = new ArrayList<>();
 
-		if (!tablesToDrop.isEmpty()) {
-			for (final String table : tablesToDrop) {
-				sql.append("DROP TABLE ").append(table).append(';');
-			}
+		for (final String table : tablesToDrop) {
+			queries.add(new SimpleQuery("DROP TABLE " + table + ';', List.of()));
 		}
 
 		for (final TableBuilder tableBuilder : tableBuilders) {
-			final Table table = tableBuilder.build();
-
-			sql.append("CREATE TABLE ");
-
-			if (table.isIfNotExists()) {
-				sql.append("IF NOT EXISTS ");
-			}
-
-			sql.append(table.getName())
-				.append(" (")
-				.append(table.getColumns()
-					.stream()
-					.map(this::buildColumnSql)
-					.collect(Collectors.joining(", ")))
-				.append(");");
+			queries.add(new SimpleQuery(buildCreateSql(tableBuilder.build()), List.of()));
 		}
 
-		return new SimpleQuery(sql.toString(), List.of());
+		for (final AlterTableBuilder alterTable : alterTables) {
+			queries.addAll(alterTable.build());
+		}
+
+		return queries;
 	}
 
 
@@ -97,39 +87,22 @@ public class MigrationBuilder {
 		tableBuilders.add(tableBuilder);
 	}
 
-	private String buildColumnSql(Column column) {
-		final StringBuilder sql = new StringBuilder();
+	private String buildCreateSql(Table table) {
+		final String columns = table.getColumns()
+			.stream()
+			.map(column -> column.toSql(sqlDialect))
+			.collect(Collectors.joining(", "));
 
-		sql.append(column.getName()).append(' ').append(column.getType());
+		final StringBuilder sql = new StringBuilder("CREATE TABLE ");
 
-		if (column.getSize() > 0) {
-			sql.append('(').append(column.getSize()).append(')');
+		if (table.isIfNotExists()) {
+			sql.append("IF NOT EXISTS ");
 		}
 
-		if (column.isUnsigned() && sqlDialect == SqlDialect.MYSQL) {
-			sql.append(" UNSIGNED");
-		}
-
-		if (!column.isNullable()) {
-			sql.append(" NOT NULL");
-		}
-
-		if (column.getDefaultValue() != null) {
-			sql.append(" DEFAULT ").append(column.getDefaultValue());
-		}
-
-		if (column.isUnique()) {
-			sql.append(" UNIQUE");
-		}
-
-		if (column.isPrimaryKey()) {
-			sql.append(" PRIMARY KEY");
-		}
-
-		if (column.isAutoIncrement()) {
-			sql.append(' ').append(sqlDialect.getAutoIncrement());
-		}
-
-		return sql.toString();
+		return sql.append(table.getName())
+			.append(" (")
+			.append(columns)
+			.append(");")
+			.toString();
 	}
 }

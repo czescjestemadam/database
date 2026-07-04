@@ -56,7 +56,8 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	@Override
 	public T first(QueryBuilder queryBuilder) {
 		final List<T> models = select(
-			queryBuilder.limit(1)
+			queryBuilder.copy()
+				.limit(1)
 				.select()
 		);
 
@@ -110,6 +111,13 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 				.execute(connection);
 
 			return updateCount > 0;
+		});
+	}
+
+	@Override
+	public int delete(QueryBuilder queryBuilder) {
+		return manager.connected(connection -> {
+			return queryBuilder.delete().execute(connection);
 		});
 	}
 
@@ -197,6 +205,20 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 	}
 
 	@Override
+	public long count(QueryBuilder queryBuilder) {
+		return manager.connected(connection -> {
+			final ResultSet resultSet = queryBuilder.countQuery()
+				.execute(connection);
+
+			if (resultSet.next()) {
+				return resultSet.getLong(1);
+			}
+
+			throw new QueryException("No results from count query");
+		});
+	}
+
+	@Override
 	public List<T> select(SelectQuery selectQuery) {
 		return manager.connected(connection -> {
 			return select(connection, selectQuery);
@@ -205,7 +227,7 @@ public abstract class AbstractRepository<T extends Model<T>> implements Reposito
 
 	@Override
 	public QueryBuilder query(String... columns) {
-		return new QueryBuilder(getTableName(), Set.of(columns), this);
+		return new QueryBuilder(getTableName(), List.of(columns), this);
 	}
 
 	@Override

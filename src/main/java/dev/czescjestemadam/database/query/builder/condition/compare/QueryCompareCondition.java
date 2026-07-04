@@ -6,23 +6,16 @@ import dev.czescjestemadam.database.query.builder.condition.QueryConditionJoinTy
 
 public abstract class QueryCompareCondition implements QueryCondition {
 	protected final QueryConditionJoinType joinType;
-
-	protected final boolean inverted;
-
 	protected final String column;
 
-	public QueryCompareCondition(QueryConditionJoinType joinType, boolean inverted, String column) {
+	public QueryCompareCondition(QueryConditionJoinType joinType, String column) {
 		this.joinType = joinType;
-		this.inverted = inverted;
 		this.column = column;
 	}
 
+	@Override
 	public QueryConditionJoinType getJoinType() {
 		return joinType;
-	}
-
-	public boolean isInverted() {
-		return inverted;
 	}
 
 	public String getColumn() {

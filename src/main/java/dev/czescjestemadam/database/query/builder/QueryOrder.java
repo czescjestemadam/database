@@ -19,8 +19,12 @@ public class QueryOrder {
 		return type;
 	}
 
+	public String toSql() {
+		return column + ' ' + type;
+	}
+
 	@Override
 	public String toString() {
-		return column + ' ' + type;
+		return toSql();
 	}
 }

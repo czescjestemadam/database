@@ -7,22 +7,21 @@ import dev.czescjestemadam.database.query.OrderType;
 import dev.czescjestemadam.database.query.builder.condition.QueryCondition;
 import dev.czescjestemadam.database.query.builder.condition.QueryConditionBuilder;
 import dev.czescjestemadam.database.query.builder.condition.QueryConditionGroup;
-import dev.czescjestemadam.database.query.builder.condition.compare.QueryCompareCondition;
-import dev.czescjestemadam.database.query.builder.condition.compare.QueryInCondition;
-import dev.czescjestemadam.database.query.builder.condition.compare.QueryNullCompareCondition;
-import dev.czescjestemadam.database.query.builder.condition.compare.QueryValueCompareCondition;
+import dev.czescjestemadam.database.query.builder.condition.QueryConditionJoinType;
 import dev.czescjestemadam.database.query.impl.SelectQuery;
 import dev.czescjestemadam.database.query.impl.UpdateQuery;
 import dev.czescjestemadam.database.repository.Repository;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryOrderBuilder<QueryBuilder> {
 	private final String table;
-	private final Set<String> columns;
+	private final List<String> columns;
 
 	private final List<QueryCondition> conditions = new ArrayList<>();
 	private final List<QueryOrder> orders = new ArrayList<>();
@@ -31,22 +30,54 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 	private int offset = -1;
 
 	@Nullable
-	private Repository<?> repository;
+	private final Repository<?> repository;
 
-	public QueryBuilder(String table, Set<String> columns) {
+	public QueryBuilder(String table, List<String> columns) {
 		this(table, columns, null);
 	}
 
-	public QueryBuilder(String table, Set<String> columns, @Nullable Repository<?> repository) {
+	public QueryBuilder(String table, List<String> columns, @Nullable Repository<?> repository) {
 		this.table = table;
 		this.columns = columns;
 		this.repository = repository;
+	}
+
+	private QueryBuilder(QueryBuilder other) {
+		this.table = other.table;
+		this.columns = new ArrayList<>(other.columns);
+		this.conditions.addAll(other.conditions);
+		this.orders.addAll(other.orders);
+		this.limit = other.limit;
+		this.offset = other.offset;
+		this.repository = other.repository;
+	}
+
+	public QueryBuilder copy() {
+		return new QueryBuilder(this);
 	}
 
 	@Override
 	public QueryBuilder where(QueryCondition condition) {
 		conditions.add(condition);
 		return this;
+	}
+
+	public QueryBuilder where(Consumer<QueryBuilder> group) {
+		conditions.add(groupCondition(QueryConditionJoinType.AND, group));
+		return this;
+	}
+
+	public QueryBuilder orWhere(Consumer<QueryBuilder> group) {
+		conditions.add(groupCondition(QueryConditionJoinType.OR, group));
+		return this;
+	}
+
+	private QueryConditionGroup groupCondition(QueryConditionJoinType joinType, Consumer<QueryBuilder> group) {
+		final QueryBuilder sub = new QueryBuilder(table, List.of());
+
+		group.accept(sub);
+
+		return new QueryConditionGroup(joinType, sub.conditions);
 	}
 
 	@Override
@@ -107,6 +138,20 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		return new SelectQuery(sql.toString(), parameters);
 	}
 
+	public SelectQuery countQuery() {
+		final StringBuilder sql = new StringBuilder();
+		final List<Object> parameters = new ArrayList<>();
+
+		sql.append("SELECT COUNT(*) FROM ")
+			.append(table);
+
+		appendConditions(sql, parameters);
+
+		sql.append(';');
+
+		return new SelectQuery(sql.toString(), parameters);
+	}
+
 	public UpdateQuery update(Object... updates) {
 		if (updates.length % 2 != 0) {
 			throw new IllegalArgumentException("Argument count must be even");
@@ -114,16 +159,8 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 
 		final List<Map.Entry<String, Object>> args = new ArrayList<>();
 
-		String column = null;
-
-		for (int i = 0; i < updates.length; i++) {
-			final Object arg = updates[i];
-
-			if (i % 2 == 0) {
-				column = String.valueOf(arg);
-			} else {
-				args.add(Map.entry(column, arg));
-			}
+		for (int i = 0; i < updates.length; i += 2) {
+			args.add(Map.entry(String.valueOf(updates[i]), updates[i + 1]));
 		}
 
 		return update(args);
@@ -191,26 +228,26 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 	}
 
 	public <T extends Model<T>> T first() {
-		if (repository == null) {
-			throw new QueryException(
-				"Cannot call first() on QueryBuilder without a repository. Create QueryBuilder via repository.query()"
-			);
-		}
-		@SuppressWarnings("unchecked") final Repository<T> repo = (Repository<T>)repository;
+		@SuppressWarnings("unchecked") final Repository<T> repo = (Repository<T>)requireRepository();
 
 		return repo.first(this);
 	}
 
 	public <T extends Model<T>> T firstOrFail() {
-		if (repository == null) {
-			throw new QueryException(
-				"Cannot call firstOrFail() on QueryBuilder without a repository. " +
-				"Create QueryBuilder via repository.query()"
-			);
-		}
-		@SuppressWarnings("unchecked") final Repository<T> repo = (Repository<T>)repository;
+		@SuppressWarnings("unchecked") final Repository<T> repo = (Repository<T>)requireRepository();
 
 		return repo.firstOrFail(this);
+	}
+
+	private Repository<?> requireRepository() {
+		if (repository == null) {
+			throw new QueryException(
+				"Cannot call terminal query methods without a repository. " +
+				"Create the QueryBuilder via repository.query()"
+			);
+		}
+
+		return repository;
 	}
 
 	private String buildColumns() {
@@ -223,7 +260,7 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		}
 
 		sql.append(" WHERE ");
-		buildConditions(conditions, sql, parameters);
+		QueryCondition.appendList(conditions, sql, parameters);
 	}
 
 	private void appendLimitOffset(StringBuilder sql) {
@@ -238,70 +275,17 @@ public class QueryBuilder implements QueryConditionBuilder<QueryBuilder>, QueryO
 		}
 	}
 
-	private static void buildConditions(
-		List<QueryCondition> conditions,
-		StringBuilder sql,
-		List<Object> parameters
-	) {
-		for (int i = 0; i < conditions.size(); i++) {
-			final QueryCondition condition = conditions.get(i);
-
-			if (i > 0) {
-				sql.append(' ')
-					.append(condition.getJoinType())
-					.append(' ');
-			}
-
-			if (condition instanceof QueryConditionGroup group) {
-				sql.append('(');
-				buildConditions(group.getConditions(), sql, parameters);
-				sql.append(')');
-			} else if (condition instanceof QueryCompareCondition compareCondition) {
-				buildCompareCondition(compareCondition, sql, parameters);
-			} else {
-				throw new QueryException("Unexpected QueryCondition instance: " + condition);
-			}
-		}
-	}
-
-	private static void buildCompareCondition(
-		QueryCompareCondition condition,
-		StringBuilder sql,
-		List<Object> parameters
-	) {
-		sql.append(condition.getColumn())
-			.append(' ');
-
-		switch (condition) {
-			case QueryValueCompareCondition valueCompareCondition -> {
-				sql.append(valueCompareCondition.getComparator())
-					.append(" ?");
-
-				parameters.add(valueCompareCondition.getValue());
-			}
-			case QueryNullCompareCondition nullCompareCondition -> sql.append(
-				nullCompareCondition.isInverted() ?
-					"IS NOT NULL" :
-					"IS NULL"
-			);
-			case QueryInCondition inCondition -> {
-				if (inCondition.isInverted()) {
-					sql.append("NOT ");
-				}
-
-				sql.append("IN (")
-					.append(String.join(", ", Collections.nCopies(inCondition.getValues().size(), "?")))
-					.append(')');
-
-				parameters.addAll(inCondition.getValues());
-			}
-			default -> throw new QueryException("Unexpected QueryCompareCondition instance: " + condition);
-		}
-	}
-
 	private String buildOrders() {
-		return orders.stream()
-			.map(QueryOrder::toString)
-			.collect(Collectors.joining(", "));
+		final StringBuilder sql = new StringBuilder();
+
+		for (int i = 0; i < orders.size(); i++) {
+			if (i > 0) {
+				sql.append(", ");
+			}
+
+			sql.append(orders.get(i).toSql());
+		}
+
+		return sql.toString();
 	}
 }

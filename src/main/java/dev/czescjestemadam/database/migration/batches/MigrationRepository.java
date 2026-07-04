@@ -3,6 +3,7 @@ package dev.czescjestemadam.database.migration.batches;
 import dev.czescjestemadam.database.DatabaseConnectionManager;
 import dev.czescjestemadam.database.migration.DatabaseMigration;
 import dev.czescjestemadam.database.migration.MigrationBuilder;
+import dev.czescjestemadam.database.query.Query;
 import dev.czescjestemadam.database.repository.AbstractRepository;
 
 public class MigrationRepository extends AbstractRepository<MigrationModel> {
@@ -30,8 +31,9 @@ public class MigrationRepository extends AbstractRepository<MigrationModel> {
 				}
 			);
 
-			migrationBuilder.build()
-				.execute(connection);
+			for (final Query<?> query : migrationBuilder.build()) {
+				query.execute(connection);
+			}
 		});
 	}
 }

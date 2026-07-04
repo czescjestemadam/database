@@ -16,15 +16,18 @@ public class QueryConditionGroup implements QueryCondition {
 		return joinType;
 	}
 
-	public List<QueryCondition> getConditions() {
-		return conditions;
+	@Override
+	public void appendTo(StringBuilder sql, List<Object> parameters) {
+		sql.append('(');
+		QueryCondition.appendList(conditions, sql, parameters);
+		sql.append(')');
 	}
 
 	@Override
 	public String toString() {
 		return "QueryConditionGroup{" +
-			"joinType=" + joinType +
-			", conditions=" + conditions +
-			'}';
+		       "joinType=" + joinType +
+		       ", conditions=" + conditions +
+		       '}';
 	}
 }
